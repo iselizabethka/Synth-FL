@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Duo Synth</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600&family=Manrope:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #e9e4f2;
+        --ink: #23202e;
+        --p: #23202e;
+        box-sizing: border-box;
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      :root:not([data-theme="light"]) {
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --bg: #1b1826;
+          --ink: #edeaf5;
+        }
+      }
+      :root[data-theme="dark"] {
+        --bg: #1b1826;
+        --ink: #edeaf5;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font:
+          500 14px Manrope,
+          system-ui,
+          sans-serif;
+        padding: 16px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        max-width: 1000px;
+        margin: 0 auto 14px;
+      }
+      h1 {
+        font:
+          600 22px Unbounded,
+          system-ui,
+          sans-serif;
+        margin: 0;
+        flex: 1;
+      }
+      button,
+      input {
+        font: inherit;
+      }
+      #play {
+        background: #3ddc97;
+        color: var(--p);
+        border: 0;
+        border-radius: 99px;
+        padding: 10px 22px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      #play.on {
+        background: #ff6b57;
+      }
+      main {
+        display: grid;
+        gap: 12px;
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+      section {
+        color: var(--p);
+        padding: 14px;
+        border-radius: 18px;
+      }
+      section h2 {
+        font:
+          600 13px Unbounded,
+          system-ui,
+          sans-serif;
+        margin: 0 0 10px;
+      }
+      .s1 {
+        background: #ff6b57;
+      }
+      .s2 {
+        background: #3ddc97;
+        border-radius: 6px 28px 6px 28px;
+      }
+      .dr {
+        background: #ffd84d;
+      }
+      .fx {
+        background: #b7a6ff;
+        border-radius: 28px 6px 28px 6px;
+      }
+      .mx {
+        background: #fff;
+        border: 2px solid var(--p);
+      }
+      .waves {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 10px;
+      }
+      .waves button {
+        width: 46px;
+        height: 30px;
+        border: 2px solid var(--p);
+        background: transparent;
+        border-radius: 8px;
+        cursor: pointer;
+        padding: 2px;
+      }
+      .waves button.on {
+        background: var(--p);
+      }
+      .waves svg {
+        width: 100%;
+        height: 100%;
+        fill: none;
+        stroke: var(--p);
+        stroke-width: 2.5;
+      }
+      .waves button.on svg {
+        stroke: #fff;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(16, 1fr);
+        gap: 3px;
+        overflow-x: auto;
+        min-width: 0;
+      }
+      .cell {
+        aspect-ratio: 1;
+        min-width: 16px;
+        border: 0;
+        border-radius: 4px;
+        background: rgba(35, 32, 46, 0.16);
+        cursor: pointer;
+        padding: 0;
+      }
+      .cell:nth-child(4n + 1) {
+        background: rgba(35, 32, 46, 0.26);
+      }
+      .cell.on {
+        background: var(--p);
+      }
+      .cell.now {
+        outline: 3px solid #fff;
+        outline-offset: -1px;
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .ctl {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 120px;
+        flex: 1;
+      }
+      .ctl span {
+        font-size: 12px;
+        font-weight: 700;
+      }
+      input[type="range"] {
+        width: 100%;
+        accent-color: var(--p);
+      }
+      .fxrow {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+      }
+      .fxrow > div {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .fxrow i {
+        font-style: normal;
+        font-size: 18px;
+        opacity: 0.6;
+      }
+      .fxrow .ctl {
+        min-width: 0;
+      }
+      .mixer {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+      }
+      .ch {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px;
+        border-radius: 12px;
+        border: 2px solid var(--p);
+      }
+      .ch b {
+        font-weight: 700;
+      }
+      .mute {
+        align-self: flex-start;
+        border: 2px solid var(--p);
+        background: transparent;
+        border-radius: 8px;
+        padding: 2px 10px;
+        cursor: pointer;
+        color: var(--p);
+      }
+      .mute.on {
+        background: var(--p);
+        color: #fff;
+      }
+      @media (min-width: 760px) {
+        main {
+          grid-template-columns: 1fr 1fr;
+        }
+        .dr,
+        .fx,
+        .mx {
+          grid-column: 1/-1;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Duo Synth</h1>
+      <label class="ctl" style="max-width: 200px"
+        ><span id="bpmv">bpm 62</span
+        ><input id="bpm" type="range" min="50" max="100" value="62"
+      /></label>
+      <button id="play">play</button>
+    </header>
+    <main>
+      <section class="s1">
+        <h2>synth-1</h2>
+        <div class="waves" id="w1"></div>
+        <div class="grid" id="g1"></div>
+      </section>
+      <section class="s2">
+        <h2>synth-2</h2>
+        <div class="waves" id="w2"></div>
+        <div class="grid" id="g2"></div>
+      </section>
+      <section class="dr">
+        <h2>drum-kit</h2>
+        <div class="grid" id="gd"></div>
+      </section>
+      <section class="fx">
+        <h2>synth-fx-chain</h2>
+        <div class="fxrow" id="fx"></div>
+      </section>
+      <section class="mx">
+        <h2>mixer</h2>
+        <div class="mixer" id="mx"></div>
+      </section>
+    </main>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <script>
+      const $ = (id) => document.getElementById(id);
+      const WAVES = {
+        sine: "M2 15 C8 -3 14 -3 20 15 S32 33 38 15",
+        triangle: "M2 15 L11 3 L29 27 L38 15",
+        sawtooth: "M2 25 L20 5 V25 L38 5",
+        square: "M2 25 V5 H20 V25 H38 V5",
+      };
+      const NOTES = [
+        ["G4", "E4", "D4", "C4", "A3"],
+        ["A5", "G5", "E5", "D5", "C5"],
+      ];
+      const grid = [
+        [4, -1, -1, -1, -1, -1, -1, -1, 3, -1, -1, -1, 2, -1, -1, -1],
+        [-1, -1, -1, -1, 0, -1, -1, -1, -1, -1, 2, -1, -1, -1, 1, -1],
+        ["1000000000100000", "0000000010000000", "0010001000100000"].map((s) =>
+          [...s].map(Number),
+        ),
+      ];
+      const st = { ready: false, step: 0, syn: [], ch: [] };
+
+      function build() {
+        const master = new Tone.Limiter(-2).toDestination();
+        const fx = {
+          dist: new Tone.Distortion(0.15),
+          chorus: new Tone.Chorus(0.6, 3.5, 0.7).start(),
+          delay: new Tone.PingPongDelay("8n.", 0.5),
+          reverb: new Tone.Reverb({ decay: 12, preDelay: 0.05 }),
+        };
+        const bus = new Tone.Gain(1);
+        bus.chain(fx.dist, fx.chorus, fx.delay, fx.reverb, master);
+        fx.dist.wet.value = 0.08;
+        fx.chorus.wet.value = 0.6;
+        fx.delay.wet.value = 0.25;
+        fx.reverb.wet.value = 0.6;
+        const mk = (type, env, detune) =>
+          new Tone.PolySynth(Tone.Synth, {
+            oscillator: { type },
+            envelope: env,
+            detune,
+          });
+        st.syn = [
+          mk(
+            "triangle",
+            { attack: 0.8, decay: 1, sustain: 0.7, release: 4 },
+            -8,
+          ),
+          mk(
+            "sine",
+            { attack: 0.15, decay: 0.6, sustain: 0.3, release: 3 },
+            12,
+          ),
+        ];
+        st.ch = [
+          new Tone.Channel(-12, -0.2),
+          new Tone.Channel(-18, 0.3),
+          new Tone.Channel(-8, 0),
+        ];
+        st.syn.forEach((s, i) => s.chain(st.ch[i], bus));
+        st.ch[2].connect(master);
+        const s2 = new Tone.Gain(0.6);
+        st.ch[1].connect(s2);
+        s2.connect(fx.delay);
+        const ds = new Tone.Gain(0.3);
+        st.ch[2].connect(ds);
+        ds.connect(fx.reverb);
+        st.kick = new Tone.MembraneSynth({
+          volume: -4,
+          pitchDecay: 0.08,
+          octaves: 4,
+          envelope: { attack: 0.01, decay: 0.7, sustain: 0, release: 0.5 },
+        }).connect(st.ch[2]);
+        st.snare = new Tone.NoiseSynth({
+          volume: -14,
+          noise: { type: "brown" },
+          envelope: { attack: 0.005, decay: 0.35, sustain: 0 },
+        }).connect(st.ch[2]);
+        st.hat = new Tone.MetalSynth({
+          volume: -28,
+          envelope: { attack: 0.001, decay: 0.08, release: 0.02 },
+        }).connect(st.ch[2]);
+        st.fx = fx;
+        Tone.Transport.bpm.value = +$("bpm").value;
+        Tone.Transport.scheduleRepeat((t) => {
+          const c = st.step % 16;
+          [0, 1].forEach((i) => {
+            const r = grid[i][c];
+            if (r >= 0)
+              st.syn[i].triggerAttackRelease(NOTES[i][r], i ? "8n" : "2n", t);
+          });
+          if (grid[2][0][c]) st.kick.triggerAttackRelease("C1", "8n", t);
+          if (grid[2][1][c]) st.snare.triggerAttackRelease("16n", t);
+          if (grid[2][2][c]) st.hat.triggerAttackRelease("C6", "32n", t, 0.6);
+          Tone.Draw.schedule(() => {
+            document
+              .querySelectorAll(".now")
+              .forEach((e) => e.classList.remove("now"));
+            document
+              .querySelectorAll('.cell[data-c="' + c + '"]')
+              .forEach((e) => e.classList.add("now"));
+          }, t);
+          st.step++;
+        }, "16n");
+        st.ready = true;
+      }
+
+      /* interface */
+      function cells(el, rows, isOn, toggle) {
+        for (let r = 0; r < rows; r++)
+          for (let c = 0; c < 16; c++) {
+            const b = document.createElement("button");
+            b.className = "cell";
+            b.dataset.c = c;
+            b.setAttribute("aria-label", "step " + (c + 1));
+            if (isOn(r, c)) b.classList.add("on");
+            b.onclick = () => {
+              toggle(r, c);
+              el.querySelectorAll(".cell").forEach((x, i) =>
+                x.classList.toggle("on", isOn(Math.floor(i / 16), i % 16)),
+              );
+            };
+            el.appendChild(b);
+          }
+      }
+      [0, 1].forEach((i) => {
+        cells(
+          $("g" + (i + 1)),
+          5,
+          (r, c) => grid[i][c] === r,
+          (r, c) => {
+            grid[i][c] = grid[i][c] === r ? -1 : r;
+            if (st.ready && grid[i][c] >= 0)
+              st.syn[i].triggerAttackRelease(NOTES[i][r], i ? "8n" : "2n");
+          },
+        );
+        Object.entries(WAVES).forEach(([w, d]) => {
+          const b = document.createElement("button");
+          b.title = w;
+          b.setAttribute("aria-label", w);
+          b.innerHTML = '<svg viewBox="0 0 40 30"><path d="' + d + '"/></svg>';
+          if (w === (i ? "sine" : "triangle")) b.classList.add("on");
+          b.onclick = () => {
+            $("w" + (i + 1))
+              .querySelectorAll("button")
+              .forEach((x) => x.classList.remove("on"));
+            b.classList.add("on");
+            if (st.ready) st.syn[i].set({ oscillator: { type: w } });
+          };
+          $("w" + (i + 1)).appendChild(b);
+        });
+      });
+      cells(
+        $("gd"),
+        3,
+        (r, c) => grid[2][r][c] === 1,
+        (r, c) => {
+          grid[2][r][c] ^= 1;
+        },
+      );
+
+      function slider(parent, label, min, max, step, val, fn) {
+        const d = document.createElement("label");
+        d.className = "ctl";
+        d.innerHTML =
+          "<span>" +
+          label +
+          '</span><input type="range" min="' +
+          min +
+          '" max="' +
+          max +
+          '" step="' +
+          step +
+          '" value="' +
+          val +
+          '">';
+        d.querySelector("input").oninput = (e) => {
+          if (st.ready) fn(+e.target.value);
+        };
+        parent.appendChild(d);
+      }
+      [
+        ["dist", "dist", 0.08, (v) => (st.fx.dist.wet.value = v)],
+        ["chorus", "chorus", 0.6, (v) => (st.fx.chorus.wet.value = v)],
+        ["delay", "delay", 0.25, (v) => (st.fx.delay.wet.value = v)],
+        ["reverb", "reverb", 0.6, (v) => (st.fx.reverb.wet.value = v)],
+      ].forEach(([k, l, v, fn], i) => {
+        const w = document.createElement("div");
+        if (i) w.insertAdjacentHTML("beforeend", "<i>›</i>");
+        slider(w, l, 0, 1, 0.01, v, fn);
+        $("fx").appendChild(w);
+      });
+      ["synth-1", "synth-2", "drum-kit"].forEach((n, i) => {
+        const d = document.createElement("div");
+        d.className = "ch";
+        d.innerHTML = "<b>" + n + "</b>";
+        slider(
+          d,
+          "vol",
+          -40,
+          0,
+          1,
+          [-12, -18, -8][i],
+          (v) => (st.ch[i].volume.value = v),
+        );
+        slider(
+          d,
+          "pan",
+          -1,
+          1,
+          0.1,
+          [-0.2, 0.3, 0][i],
+          (v) => (st.ch[i].pan.value = v),
+        );
+        const m = document.createElement("button");
+        m.className = "mute";
+        m.textContent = "mute";
+        m.onclick = () => {
+          if (!st.ready) return;
+          m.classList.toggle("on");
+          st.ch[i].mute = m.classList.contains("on");
+        };
+        d.appendChild(m);
+        $("mx").appendChild(d);
+      });
+      $("bpm").oninput = (e) => {
+        $("bpmv").textContent = "bpm " + e.target.value;
+        if (st.ready) Tone.Transport.bpm.value = +e.target.value;
+      };
+      $("play").onclick = async () => {
+        await Tone.start();
+        if (!st.ready) build();
+        const b = $("play");
+        if (Tone.Transport.state === "started") {
+          Tone.Transport.stop();
+          st.step = 0;
+          b.textContent = "play";
+          b.classList.remove("on");
+          document
+            .querySelectorAll(".now")
+            .forEach((e) => e.classList.remove("now"));
+        } else {
+          Tone.Transport.start();
+          b.textContent = "stop";
+          b.classList.add("on");
+        }
+      };
+    </script>
+  </body>
+</html>
