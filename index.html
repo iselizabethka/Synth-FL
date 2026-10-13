@@ -6,76 +6,274 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-    <title>Duo Synth</title>
+    <title>Ночная станция</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600&family=Manrope:wght@500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600&family=Manrope:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
     <style>
       :root {
-        --bg: #e9e4f2;
-        --ink: #23202e;
-        --p: #23202e;
+        color-scheme: dark;
+        --bg: #0a0818;
+        --ink: #e4dff5;
         box-sizing: border-box;
         padding-top: env(safe-area-inset-top, 0px);
         padding-bottom: env(safe-area-inset-bottom, 0px);
       }
-      :root:not([data-theme="light"]) {
-      }
-      @media (prefers-color-scheme: dark) {
-        :root:not([data-theme="light"]) {
-          --bg: #1b1826;
-          --ink: #edeaf5;
-        }
-      }
-      :root[data-theme="dark"] {
-        --bg: #1b1826;
-        --ink: #edeaf5;
+      html {
+        background: var(--bg);
+        scroll-padding-top: env(safe-area-inset-top, 0px);
       }
       * {
         box-sizing: border-box;
       }
       body {
         margin: 0;
-        background: var(--bg);
+        padding: 0;
         color: var(--ink);
         font:
           500 14px Manrope,
           system-ui,
           sans-serif;
-        padding: 16px;
+        position: relative;
+        background:
+          repeating-linear-gradient(
+            0deg,
+            rgba(255, 255, 255, 0.022) 0 1px,
+            transparent 1px 3px
+          ),
+          radial-gradient(
+            800px 500px at 80% -5%,
+            rgba(120, 70, 220, 0.28),
+            transparent
+          ),
+          radial-gradient(
+            600px 500px at 0% 70%,
+            rgba(90, 60, 200, 0.16),
+            transparent
+          ),
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.06'/%3E%3C/svg%3E"),
+          linear-gradient(#0c0a1e, #07060f);
+      }
+      #rain {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: none;
+      }
+      .stage {
+        position: relative;
+        z-index: 1;
+        min-height: 100vh;
+        padding: 18px;
+        perspective: 1000px;
+        overflow-x: clip;
+      }
+      .device {
+        position: relative;
+        transform-origin: 50% 35%;
+        will-change: transform;
+      }
+      .device::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 5;
+        background: radial-gradient(
+          700px 500px at calc(50% - var(--ry, 0) * 5%)
+            calc(30% + var(--rx, 0) * 5%),
+          rgba(170, 150, 255, calc(var(--k, 0) * 0.1)),
+          transparent 70%
+        );
+      }
+      .tilt-on .stage {
+        cursor: grab;
+      }
+      .tilt-on.dragging .stage {
+        cursor: grabbing;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      .sr {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+      }
+      .route {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+        margin: 0 0 8px;
+        font:
+          11px "IBM Plex Mono",
+          ui-monospace,
+          monospace;
+      }
+      .route span {
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+        padding: 2px 8px;
+        letter-spacing: 0.06em;
+      }
+      .route .snd {
+        border-style: dashed;
+        opacity: 0.7;
+      }
+      .route em {
+        font-style: normal;
+        opacity: 0.5;
+      }
+      .fxrow {
+        margin-top: 6px;
+      }
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        -webkit-backdrop-filter: blur(1.2px);
+        backdrop-filter: blur(1.2px);
+        background:
+          radial-gradient(
+            ellipse 80% 70% at 50% 45%,
+            transparent 40%,
+            rgba(170, 185, 235, 0.07) 100%
+          ),
+          radial-gradient(
+            260px 170px at 6% 12%,
+            rgba(220, 230, 255, 0.06),
+            transparent
+          ),
+          radial-gradient(
+            320px 200px at 95% 80%,
+            rgba(220, 230, 255, 0.05),
+            transparent
+          ),
+          radial-gradient(
+            220px 150px at 72% 3%,
+            rgba(200, 210, 255, 0.05),
+            transparent
+          ),
+          radial-gradient(
+            900px 400px at 30% 20%,
+            rgba(220, 225, 255, 0.03),
+            transparent
+          );
+        animation: breathe 14s ease-in-out infinite alternate;
+      }
+      @keyframes breathe {
+        from {
+          opacity: 0.75;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      header,
+      main {
+        position: relative;
+        z-index: 1;
       }
       header {
         display: flex;
-        align-items: center;
-        gap: 16px;
+        gap: 20px;
+        align-items: flex-end;
+        justify-content: space-between;
         flex-wrap: wrap;
         max-width: 1000px;
         margin: 0 auto 14px;
       }
+      .mono,
+      .tag,
+      .sig,
+      section p,
+      .lbl,
+      .ctl span,
+      .mute,
+      .ch b,
+      #play {
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+      }
+      .tag {
+        display: inline-block;
+        color: #c9b8ff;
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        border: 1px solid #c9b8ff55;
+        padding: 2px 8px;
+        border-radius: 3px;
+      }
       h1 {
         font:
-          600 22px Unbounded,
+          600 clamp(26px, 6vw, 44px) Unbounded,
           system-ui,
           sans-serif;
+        margin: 8px 0 4px;
+        background: linear-gradient(90deg, #e0529c, #9d7cf0, #5cc8e0);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .lead {
         margin: 0;
-        flex: 1;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        opacity: 0.7;
+      }
+      .top {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .sig {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        letter-spacing: 0.1em;
+        opacity: 0.8;
+      }
+      .sig i {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #4a4560;
+      }
+      .sig.live {
+        opacity: 1;
+        color: #7df0c0;
+      }
+      .sig.live i {
+        background: #7df0c0;
+        box-shadow: 0 0 10px #7df0c0;
       }
       button,
       input {
         font: inherit;
       }
       #play {
-        background: #3ddc97;
-        color: var(--p);
-        border: 0;
-        border-radius: 99px;
+        background: transparent;
+        color: #5cc8e0;
+        border: 1px solid #5cc8e0;
+        border-radius: 4px;
         padding: 10px 22px;
-        font-weight: 700;
+        font-size: 13px;
+        letter-spacing: 0.1em;
         cursor: pointer;
       }
       #play.on {
-        background: #ff6b57;
+        background: #e0529c;
+        border-color: #e0529c;
+        color: #0a0818;
+        box-shadow: 0 0 16px rgba(224, 82, 156, 0.6);
       }
       main {
         display: grid;
@@ -84,34 +282,48 @@
         margin: 0 auto;
       }
       section {
-        color: var(--p);
+        background: rgba(24, 16, 48, 0.42);
+        -webkit-backdrop-filter: blur(10px) saturate(1.1);
+        backdrop-filter: blur(10px) saturate(1.1);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
         padding: 14px;
-        border-radius: 18px;
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.06),
+          inset 0 0 32px rgba(120, 90, 220, 0.07),
+          calc(var(--ry, 0) * -1px) calc(8px + var(--rx, 0) * 1px) 30px
+            rgba(0, 0, 0, 0.25);
       }
       section h2 {
         font:
-          600 13px Unbounded,
+          600 12px Unbounded,
           system-ui,
           sans-serif;
+        color: var(--c);
+        margin: 0 0 4px;
+        letter-spacing: 0.04em;
+      }
+      section p {
         margin: 0 0 10px;
+        font-size: 11px;
+        letter-spacing: 0.04em;
+        opacity: 0.65;
+        line-height: 1.5;
       }
       .s1 {
-        background: #ff6b57;
+        --c: #e0529c;
       }
       .s2 {
-        background: #3ddc97;
-        border-radius: 6px 28px 6px 28px;
+        --c: #5cc8e0;
       }
       .dr {
-        background: #ffd84d;
+        --c: #9d7cf0;
       }
       .fx {
-        background: #b7a6ff;
-        border-radius: 28px 6px 28px 6px;
+        --c: #c98be8;
       }
       .mx {
-        background: #fff;
-        border: 2px solid var(--p);
+        --c: #7c93e8;
       }
       .waves {
         display: flex;
@@ -119,58 +331,63 @@
         margin-bottom: 10px;
       }
       .waves button {
-        width: 46px;
-        height: 30px;
-        border: 2px solid var(--p);
+        width: 44px;
+        height: 28px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
         background: transparent;
-        border-radius: 8px;
+        border-radius: 5px;
         cursor: pointer;
         padding: 2px;
       }
       .waves button.on {
-        background: var(--p);
+        border-color: var(--c);
+        box-shadow: 0 0 10px -2px var(--c);
       }
       .waves svg {
         width: 100%;
         height: 100%;
         fill: none;
-        stroke: var(--p);
+        stroke: rgba(255, 255, 255, 0.45);
         stroke-width: 2.5;
       }
       .waves button.on svg {
-        stroke: #fff;
+        stroke: var(--c);
       }
       .grid {
         display: grid;
-        grid-template-columns: repeat(16, 1fr);
+        grid-template-columns: 38px repeat(16, 1fr);
         gap: 3px;
         overflow-x: auto;
         min-width: 0;
+        align-items: center;
+      }
+      .lbl {
+        font-size: 10px;
+        letter-spacing: 0.06em;
+        opacity: 0.6;
       }
       .cell {
         aspect-ratio: 1;
         min-width: 16px;
         border: 0;
-        border-radius: 4px;
-        background: rgba(35, 32, 46, 0.16);
+        border-radius: 3px;
+        background: rgba(255, 255, 255, 0.06);
         cursor: pointer;
         padding: 0;
       }
-      .cell:nth-child(4n + 1) {
-        background: rgba(35, 32, 46, 0.26);
+      .cell:nth-child(n) {
+        outline: 0;
       }
       .cell.on {
-        background: var(--p);
+        background: var(--c);
+        box-shadow: 0 0 8px var(--c);
       }
       .cell.now {
-        outline: 3px solid #fff;
-        outline-offset: -1px;
+        background: rgba(255, 255, 255, 0.28);
       }
-      .row {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: wrap;
+      .cell.on.now {
+        background: #fff;
+        box-shadow: 0 0 12px var(--c);
       }
       .ctl {
         display: flex;
@@ -180,12 +397,12 @@
         flex: 1;
       }
       .ctl span {
-        font-size: 12px;
-        font-weight: 700;
+        font-size: 11px;
+        letter-spacing: 0.05em;
       }
       input[type="range"] {
         width: 100%;
-        accent-color: var(--p);
+        accent-color: var(--c, #5cc8e0);
       }
       .fxrow {
         display: grid;
@@ -199,8 +416,8 @@
       }
       .fxrow i {
         font-style: normal;
-        font-size: 18px;
-        opacity: 0.6;
+        font-size: 16px;
+        opacity: 0.5;
       }
       .fxrow .ctl {
         min-width: 0;
@@ -215,24 +432,28 @@
         flex-direction: column;
         gap: 8px;
         padding: 10px;
-        border-radius: 12px;
-        border: 2px solid var(--p);
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
       }
       .ch b {
-        font-weight: 700;
+        font-weight: 500;
+        font-size: 12px;
+        letter-spacing: 0.06em;
       }
       .mute {
         align-self: flex-start;
-        border: 2px solid var(--p);
+        border: 1px solid rgba(255, 255, 255, 0.25);
         background: transparent;
-        border-radius: 8px;
-        padding: 2px 10px;
+        border-radius: 4px;
+        padding: 2px 12px;
         cursor: pointer;
-        color: var(--p);
+        color: var(--ink);
+        font-size: 11px;
       }
       .mute.on {
-        background: var(--p);
-        color: #fff;
+        border-color: var(--c);
+        color: var(--c);
+        box-shadow: 0 0 8px -2px var(--c);
       }
       @media (min-width: 760px) {
         main {
@@ -245,45 +466,78 @@
         }
       }
       @media (prefers-reduced-motion: reduce) {
-        * {
+        #rain {
+          display: none;
+        }
+        *,
+        *::before,
+        *::after {
+          animation: none !important;
           transition: none !important;
         }
       }
     </style>
   </head>
   <body>
-    <header>
-      <h1>Duo Synth</h1>
-      <label class="ctl" style="max-width: 200px"
-        ><span id="bpmv">bpm 62</span
-        ><input id="bpm" type="range" min="50" max="100" value="62"
-      /></label>
-      <button id="play">play</button>
-    </header>
-    <main>
-      <section class="s1">
-        <h2>synth-1</h2>
-        <div class="waves" id="w1"></div>
-        <div class="grid" id="g1"></div>
-      </section>
-      <section class="s2">
-        <h2>synth-2</h2>
-        <div class="waves" id="w2"></div>
-        <div class="grid" id="g2"></div>
-      </section>
-      <section class="dr">
-        <h2>drum-kit</h2>
-        <div class="grid" id="gd"></div>
-      </section>
-      <section class="fx">
-        <h2>synth-fx-chain</h2>
-        <div class="fxrow" id="fx"></div>
-      </section>
-      <section class="mx">
-        <h2>mixer</h2>
-        <div class="mixer" id="mx"></div>
-      </section>
-    </main>
+    <canvas id="rain" aria-hidden="true"></canvas>
+    <div class="stage" id="stage">
+      <div class="device" id="device">
+        <header>
+          <div>
+            <span class="tag">東京 · 03:00</span>
+            <h1>Ночная станция</h1>
+            <p class="lead">ОПЕРАТОР: ставь ноты, размывай звук</p>
+          </div>
+          <div class="top">
+            <div class="sig" id="sig">
+              <i></i><span id="sigt">STANDBY</span>
+            </div>
+            <label class="ctl" style="width: 150px"
+              ><span id="bpmv">BPM 62</span
+              ><input id="bpm" type="range" min="50" max="100" value="62"
+            /></label>
+            <button id="play">PLAY</button>
+          </div>
+        </header>
+        <main>
+          <section class="s1">
+            <h2>SYNTH 01 / BODY</h2>
+            <p>LOW / WARM / SLOW</p>
+            <div class="waves" id="w1"></div>
+            <div class="grid" id="g1"></div>
+          </section>
+          <section class="s2">
+            <h2>SYNTH 02 / GHOST</h2>
+            <p>HIGH / AIRY / SPACIOUS</p>
+            <div class="waves" id="w2"></div>
+            <div class="grid" id="g2"></div>
+          </section>
+          <section class="dr">
+            <h2>DRUM MACHINE / PULSE</h2>
+            <p>SPARSE / SOFT / DEEP</p>
+            <div class="grid" id="gd"></div>
+          </section>
+          <section class="fx">
+            <h2>EFFECTS / SPACE</h2>
+            <div class="route">
+              <span class="snd">BODY + GHOST</span><em>→</em
+              ><span>DISTORTION</span><em>→</em><span>CHORUS</span><em>→</em
+              ><span>DELAY</span><em>→</em><span>REVERB</span>
+            </div>
+            <div class="route">
+              <span class="snd">SEND</span><span class="snd">GHOST ⇢ DELAY</span
+              ><span class="snd">PULSE ⇢ REVERB</span>
+            </div>
+            <div class="fxrow" id="fx"></div>
+          </section>
+          <section class="mx">
+            <h2>MIXER / CHANNELS</h2>
+            <p>VOL / PAN / MUTE</p>
+            <div class="mixer" id="mx"></div>
+          </section>
+        </main>
+      </div>
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <script>
       const $ = (id) => document.getElementById(id);
@@ -292,6 +546,12 @@
         triangle: "M2 15 L11 3 L29 27 L38 15",
         sawtooth: "M2 25 L20 5 V25 L38 5",
         square: "M2 25 V5 H20 V25 H38 V5",
+      };
+      const RU = {
+        sine: "SINE",
+        triangle: "TRIANGLE",
+        sawtooth: "SAWTOOTH",
+        square: "SQUARE",
       };
       const NOTES = [
         ["G4", "E4", "D4", "C4", "A3"],
@@ -390,15 +650,22 @@
         }, "16n");
         st.ready = true;
       }
+      build();
 
       /* interface */
-      function cells(el, rows, isOn, toggle) {
+      function cells(el, rows, isOn, toggle, lab) {
         for (let r = 0; r < rows; r++)
           for (let c = 0; c < 16; c++) {
+            if (c === 0) {
+              const l = document.createElement("span");
+              l.className = "lbl";
+              l.textContent = lab[r];
+              el.appendChild(l);
+            }
             const b = document.createElement("button");
             b.className = "cell";
             b.dataset.c = c;
-            b.setAttribute("aria-label", "step " + (c + 1));
+            b.setAttribute("aria-label", "шаг " + (c + 1));
             if (isOn(r, c)) b.classList.add("on");
             b.onclick = () => {
               toggle(r, c);
@@ -419,12 +686,18 @@
             if (st.ready && grid[i][c] >= 0)
               st.syn[i].triggerAttackRelease(NOTES[i][r], i ? "8n" : "2n");
           },
+          NOTES[i],
         );
         Object.entries(WAVES).forEach(([w, d]) => {
           const b = document.createElement("button");
-          b.title = w;
-          b.setAttribute("aria-label", w);
-          b.innerHTML = '<svg viewBox="0 0 40 30"><path d="' + d + '"/></svg>';
+          b.title = RU[w];
+          b.setAttribute("aria-label", RU[w]);
+          b.innerHTML =
+            '<svg viewBox="0 0 40 30"><path d="' +
+            d +
+            '"/></svg><span class="sr">' +
+            RU[w] +
+            "</span>";
           if (w === (i ? "sine" : "triangle")) b.classList.add("on");
           b.onclick = () => {
             $("w" + (i + 1))
@@ -443,6 +716,7 @@
         (r, c) => {
           grid[2][r][c] ^= 1;
         },
+        ["KICK", "SNARE", "HAT"],
       );
 
       function slider(parent, label, min, max, step, val, fn) {
@@ -466,23 +740,24 @@
         parent.appendChild(d);
       }
       [
-        ["dist", "dist", 0.08, (v) => (st.fx.dist.wet.value = v)],
-        ["chorus", "chorus", 0.6, (v) => (st.fx.chorus.wet.value = v)],
-        ["delay", "delay", 0.25, (v) => (st.fx.delay.wet.value = v)],
-        ["reverb", "reverb", 0.6, (v) => (st.fx.reverb.wet.value = v)],
+        ["dist", "DISTORTION", 0.08, (v) => (st.fx.dist.wet.value = v)],
+        ["chorus", "CHORUS", 0.6, (v) => (st.fx.chorus.wet.value = v)],
+        ["delay", "DELAY", 0.25, (v) => (st.fx.delay.wet.value = v)],
+        ["reverb", "REVERB", 0.6, (v) => (st.fx.reverb.wet.value = v)],
       ].forEach(([k, l, v, fn], i) => {
         const w = document.createElement("div");
         if (i) w.insertAdjacentHTML("beforeend", "<i>›</i>");
         slider(w, l, 0, 1, 0.01, v, fn);
         $("fx").appendChild(w);
       });
-      ["synth-1", "synth-2", "drum-kit"].forEach((n, i) => {
+      ["BODY", "GHOST", "PULSE"].forEach((n, i) => {
         const d = document.createElement("div");
         d.className = "ch";
+        d.style.setProperty("--c", ["#FF2E97", "#19E3FF", "#A66BFF"][i]);
         d.innerHTML = "<b>" + n + "</b>";
         slider(
           d,
-          "vol",
+          "VOL",
           -40,
           0,
           1,
@@ -491,7 +766,7 @@
         );
         slider(
           d,
-          "pan",
+          "PAN",
           -1,
           1,
           0.1,
@@ -500,7 +775,7 @@
         );
         const m = document.createElement("button");
         m.className = "mute";
-        m.textContent = "mute";
+        m.textContent = "MUTE";
         m.onclick = () => {
           if (!st.ready) return;
           m.classList.toggle("on");
@@ -510,8 +785,12 @@
         $("mx").appendChild(d);
       });
       $("bpm").oninput = (e) => {
-        $("bpmv").textContent = "bpm " + e.target.value;
+        $("bpmv").textContent = "BPM " + e.target.value;
         if (st.ready) Tone.Transport.bpm.value = +e.target.value;
+      };
+      const setSig = (on) => {
+        $("sig").classList.toggle("live", on);
+        $("sigt").textContent = on ? "SIGNAL ACTIVE" : "STANDBY";
       };
       $("play").onclick = async () => {
         await Tone.start();
@@ -520,17 +799,283 @@
         if (Tone.Transport.state === "started") {
           Tone.Transport.stop();
           st.step = 0;
-          b.textContent = "play";
+          b.textContent = "PLAY";
           b.classList.remove("on");
+          setSig(0);
           document
             .querySelectorAll(".now")
             .forEach((e) => e.classList.remove("now"));
         } else {
           Tone.Transport.start();
-          b.textContent = "stop";
+          b.textContent = "STOP";
           b.classList.add("on");
+          setSig(1);
         }
       };
+
+      /* rain on glass: canvas, behind the interface */
+      (() => {
+        const cv = $("rain"),
+          ctx = cv.getContext("2d"),
+          rm = matchMedia("(prefers-reduced-motion:reduce)");
+        if (rm.matches) return;
+        const rnd = (a, b) => a + Math.random() * (b - a);
+        const TINT = ["185,200,255", "255,140,200", "120,220,255"];
+        const pick = () => {
+          const r = Math.random();
+          return r < 0.72 ? 0 : r < 0.86 ? 1 : 2;
+        };
+        function sprite(c) {
+          const o = document.createElement("canvas");
+          o.width = o.height = 64;
+          const g = o.getContext("2d");
+          let b = g.createRadialGradient(32, 26, 2, 32, 32, 30);
+          b.addColorStop(0, "rgba(" + c + ",.04)");
+          b.addColorStop(0.7, "rgba(" + c + ",.10)");
+          b.addColorStop(1, "rgba(" + c + ",.34)");
+          g.fillStyle = b;
+          g.beginPath();
+          g.arc(32, 32, 30, 0, 7);
+          g.fill();
+          let r = g.createLinearGradient(0, 10, 0, 58);
+          r.addColorStop(0, "rgba(0,0,0,.18)");
+          r.addColorStop(0.6, "rgba(0,0,0,0)");
+          r.addColorStop(1, "rgba(" + c + ",.22)");
+          g.fillStyle = r;
+          g.beginPath();
+          g.arc(32, 32, 30, 0, 7);
+          g.fill();
+          g.fillStyle = "rgba(255,255,255,.65)";
+          g.beginPath();
+          g.ellipse(23, 20, 6, 4, -0.6, 0, 7);
+          g.fill();
+          g.fillStyle = "rgba(255,255,255,.2)";
+          g.beginPath();
+          g.arc(42, 45, 3, 0, 7);
+          g.fill();
+          return o;
+        }
+        const SP = TINT.map(sprite);
+        let W,
+          H,
+          D,
+          st = [],
+          mv = [],
+          last = 0;
+        const stat = (init) => {
+          const t = rnd(12, 40);
+          return {
+            x: rnd(0, W),
+            y: rnd(0, H),
+            r: 1 + Math.pow(Math.random(), 2.2) * 3.2,
+            t,
+            age: init ? rnd(0, t) : 0,
+            s: pick(),
+          };
+        };
+        const drop = (init) => {
+          const big = Math.random() < 0.18;
+          return {
+            x: rnd(0, W),
+            y: init ? rnd(0, H * 0.7) : rnd(-20, H * 0.3),
+            r: big ? rnd(5.5, 8) : rnd(3, 5),
+            big,
+            v: 0,
+            vt: big ? rnd(90, 170) : rnd(14, 40),
+            pause: rnd(0, 3),
+            tr: [],
+            s: pick(),
+            w: rnd(0, 6),
+            acc: 0,
+          };
+        };
+        function size() {
+          D = Math.min(devicePixelRatio || 1, 1.5);
+          W = innerWidth;
+          H = innerHeight;
+          cv.width = W * D;
+          cv.height = H * D;
+          ctx.setTransform(D, 0, 0, D, 0, 0);
+          st = [];
+          const n = Math.min(260, ((W * H) / 6500) | 0);
+          for (let i = 0; i < n; i++) st.push(stat(true));
+          if (!mv.length) for (let i = 0; i < 6; i++) mv.push(drop(true));
+        }
+        let rt;
+        addEventListener("resize", () => {
+          clearTimeout(rt);
+          rt = setTimeout(size, 150);
+        });
+        size();
+        function frame(t) {
+          requestAnimationFrame(frame);
+          if (document.hidden || t - last < 33) return;
+          const dt = Math.min((t - last) / 1000, 0.1);
+          last = t;
+          ctx.clearRect(0, 0, W, H);
+          st.forEach((d, i) => {
+            d.age += dt;
+            if (d.age > d.t) {
+              st[i] = stat(false);
+              return;
+            }
+            const a = Math.min(d.age / 1.5, 1, (d.t - d.age) / 3);
+            ctx.globalAlpha = a * 0.9;
+            ctx.drawImage(SP[d.s], d.x - d.r, d.y - d.r, d.r * 2, d.r * 2.2);
+          });
+          const max = Math.max(6, Math.min(16, (W / 100) | 0));
+          if (mv.length < max && Math.random() < dt * 0.7) mv.push(drop(false));
+          mv = mv.filter((d) => {
+            if (d.pause > 0) {
+              d.pause -= dt;
+              d.v *= 0.9;
+            } else {
+              d.v += (d.vt - d.v) * Math.min(1, dt * (d.big ? 1.2 : 0.8));
+              if (Math.random() < dt * (d.big ? 0.05 : 0.25))
+                d.pause = rnd(0.6, 2.5);
+              if (Math.random() < dt * 0.15)
+                d.vt = d.big ? rnd(90, 170) : rnd(14, 40);
+            }
+            const dy = d.v * dt;
+            d.y += dy;
+            d.w += dt * 1.3;
+            d.x += Math.sin(d.w + d.y * 0.02) * dt * 3;
+            d.acc += dy;
+            if (d.acc > 7) {
+              d.acc = 0;
+              d.tr.push([d.x, d.y]);
+              if (d.tr.length > (d.big ? 40 : 22)) d.tr.shift();
+              if (Math.random() < 0.35) {
+                st.push({
+                  x: d.x + rnd(-d.r, d.r) * 0.7,
+                  y: d.y - d.r,
+                  r: rnd(0.5, 1.3),
+                  t: rnd(8, 20),
+                  age: 0,
+                  s: pick(),
+                });
+                if (st.length > 320) st.shift();
+              }
+            }
+            d.r -= dy * (d.big ? 0.0035 : 0.001);
+            if (d.r < 2.2 || d.y > H + 20) return false;
+            ctx.strokeStyle = "rgb(190,205,255)";
+            ctx.lineCap = "round";
+            for (let k = 1; k < d.tr.length; k++) {
+              const f = k / d.tr.length;
+              ctx.globalAlpha = 0.09 * f;
+              ctx.lineWidth = d.r * 0.5 * f + 0.4;
+              ctx.beginPath();
+              ctx.moveTo(d.tr[k - 1][0], d.tr[k - 1][1]);
+              ctx.lineTo(d.tr[k][0], d.tr[k][1]);
+              ctx.stroke();
+            }
+            ctx.globalAlpha = 1;
+            ctx.drawImage(
+              SP[d.s],
+              d.x - d.r,
+              d.y - d.r * 1.25,
+              d.r * 2,
+              d.r * 2.6,
+            );
+            return true;
+          });
+          ctx.globalAlpha = 1;
+        }
+        requestAnimationFrame(frame);
+      })();
+      /* 3D tilt of the whole device; independent of the rain */
+      (() => {
+        const stage = $("stage"),
+          dev = $("device"),
+          mqT = matchMedia(
+            "(min-width:900px) and (hover:hover) and (pointer:fine)",
+          ),
+          mqR = matchMedia("(prefers-reduced-motion:reduce)");
+        const can = () => mqT.matches && !mqR.matches,
+          MAX = 10,
+          cl = (v) => Math.max(-1, Math.min(1, v));
+        let sx = 0,
+          sy = 0,
+          tx = 0,
+          ty = 0,
+          cx = 0,
+          cy = 0,
+          drag = false,
+          raf = 0,
+          pid = null;
+        function loop() {
+          cx += (tx - cx) * 0.1;
+          cy += (ty - cy) * 0.1;
+          if (drag || tx || ty || Math.abs(cx) > 0.01 || Math.abs(cy) > 0.01) {
+            dev.style.transform =
+              "rotateX(" +
+              cx +
+              "deg) rotateY(" +
+              cy +
+              "deg) scale(" +
+              (1 - Math.hypot(cx, cy) * 0.0025) +
+              ")";
+            dev.style.setProperty("--rx", cx);
+            dev.style.setProperty("--ry", cy);
+            dev.style.setProperty("--k", Math.hypot(cx, cy) / MAX);
+            raf = requestAnimationFrame(loop);
+          } else {
+            raf = 0;
+            cx = cy = 0;
+            dev.style.transform = "";
+            dev.style.setProperty("--rx", 0);
+            dev.style.setProperty("--ry", 0);
+            dev.style.setProperty("--k", 0);
+          }
+        }
+        const kick = () => {
+          if (!raf) raf = requestAnimationFrame(loop);
+        };
+        stage.addEventListener("pointerdown", (e) => {
+          if (
+            !can() ||
+            e.pointerType !== "mouse" ||
+            e.button !== 0 ||
+            e.target.closest("button,input,label,a,select")
+          )
+            return;
+          drag = true;
+          sx = e.clientX;
+          sy = e.clientY;
+          pid = e.pointerId;
+          stage.setPointerCapture(pid);
+          document.body.classList.add("dragging");
+          e.preventDefault();
+          kick();
+        });
+        stage.addEventListener("pointermove", (e) => {
+          if (!drag || e.pointerId !== pid) return;
+          ty = cl((e.clientX - sx) / 320) * MAX;
+          tx = cl((sy - e.clientY) / 320) * MAX;
+        });
+        const end = () => {
+          if (!drag) return;
+          drag = false;
+          tx = ty = 0;
+          document.body.classList.remove("dragging");
+          try {
+            stage.releasePointerCapture(pid);
+          } catch (_) {}
+          kick();
+        };
+        ["pointerup", "pointercancel", "lostpointercapture"].forEach((n) =>
+          stage.addEventListener(n, end),
+        );
+        addEventListener("blur", end);
+        const sync = () => {
+          document.body.classList.toggle("tilt-on", can());
+          if (!can()) end();
+        };
+        mqT.onchange = sync;
+        mqR.onchange = sync;
+        sync();
+      })();
     </script>
   </body>
 </html>
