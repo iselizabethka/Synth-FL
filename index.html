@@ -6,22 +6,25 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-    <title>Ночная станция</title>
+    <title>AETHER</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600&family=Manrope:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600&family=Manrope:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=VT323&family=Pixelify+Sans:wght@500;700&family=Press+Start+2P&display=swap"
       rel="stylesheet"
     />
+
     <style>
       :root {
         color-scheme: dark;
-        --bg: #0a0818;
-        --ink: #e4dff5;
+        --or: #ff861c;
+        --pu: #aa78f2;
+        --gr: #83ff73;
+        --wh: #e7e6e1;
         box-sizing: border-box;
         padding-top: env(safe-area-inset-top, 0px);
         padding-bottom: env(safe-area-inset-bottom, 0px);
       }
       html {
-        background: var(--bg);
+        background: #1c1d20;
         scroll-padding-top: env(safe-area-inset-top, 0px);
       }
       * {
@@ -29,33 +32,31 @@
       }
       body {
         margin: 0;
-        padding: 0;
-        color: var(--ink);
+        color: #e7e6e1;
         font:
           500 14px Manrope,
           system-ui,
           sans-serif;
         position: relative;
         background:
-          repeating-linear-gradient(
-            0deg,
-            rgba(255, 255, 255, 0.022) 0 1px,
-            transparent 1px 3px
-          ),
-          radial-gradient(
-            800px 500px at 80% -5%,
-            rgba(120, 70, 220, 0.28),
-            transparent
-          ),
-          radial-gradient(
-            600px 500px at 0% 70%,
-            rgba(90, 60, 200, 0.16),
-            transparent
-          ),
-          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.06'/%3E%3C/svg%3E"),
-          linear-gradient(#0c0a1e, #07060f);
+          radial-gradient(900px 600px at 50% 0%, #4a4b50, transparent 70%),
+          linear-gradient(#2a2b2f, #141517);
       }
-      #rain {
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        -webkit-backdrop-filter: blur(1px);
+        backdrop-filter: blur(1px);
+        background: radial-gradient(
+          ellipse 80% 70% at 50% 45%,
+          transparent 45%,
+          rgba(200, 205, 215, 0.06) 100%
+        );
+      }
+      #datarain {
         position: fixed;
         inset: 0;
         width: 100%;
@@ -67,12 +68,14 @@
         position: relative;
         z-index: 1;
         min-height: 100vh;
-        padding: 18px;
+        padding: 28px 18px 44px;
         perspective: 1000px;
         overflow-x: clip;
       }
       .device {
         position: relative;
+        max-width: 1240px;
+        margin: 0 auto;
         transform-origin: 50% 35%;
         will-change: transform;
       }
@@ -82,10 +85,11 @@
         inset: 0;
         pointer-events: none;
         z-index: 5;
+        border-radius: 30px;
         background: radial-gradient(
           700px 500px at calc(50% - var(--ry, 0) * 5%)
             calc(30% + var(--rx, 0) * 5%),
-          rgba(170, 150, 255, calc(var(--k, 0) * 0.1)),
+          rgba(255, 255, 255, calc(var(--k, 0) * 0.12)),
           transparent 70%
         );
       }
@@ -104,438 +108,1123 @@
         overflow: hidden;
         clip: rect(0 0 0 0);
       }
+      button,
+      input {
+        font: inherit;
+      }
+      /* chassis */
+      .chassis {
+        position: relative;
+        display: grid;
+        gap: 18px;
+        padding: 32px 36px;
+        border-radius: 30px;
+        background: linear-gradient(160deg, #f1f0eb, #e4e3dd 45%, #d5d4ce);
+        box-shadow:
+          inset 0 2px 0 #fff,
+          inset 0 -6px 12px rgba(0, 0, 0, 0.12),
+          inset 6px 0 10px rgba(255, 255, 255, 0.4),
+          inset -6px 0 10px rgba(0, 0, 0, 0.08),
+          0 0 0 2px #b9bcbd,
+          0 0 0 5px #d9dcdd,
+          0 0 0 6px #8c9093,
+          calc(var(--ry, 0) * -1px) calc(30px + var(--rx, 0) * 1px) 70px
+            rgba(0, 0, 0, 0.6);
+      }
+      .chassis::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 30px;
+        pointer-events: none;
+        opacity: 0.06;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+      .pipe {
+        position: absolute;
+        top: 90px;
+        bottom: 90px;
+        width: 18px;
+        border-radius: 10px;
+        background: linear-gradient(
+          90deg,
+          #6d7174,
+          #f4f6f7 28%,
+          #9ea3a6 55%,
+          #e6e9ea 78%,
+          #6d7174
+        );
+        box-shadow:
+          0 0 0 3px rgba(0, 0, 0, 0.25),
+          0 8px 14px rgba(0, 0, 0, 0.4);
+      }
+      .pipe.pl {
+        left: 8px;
+      }
+      .pipe.pr {
+        right: 8px;
+      }
+      .row {
+        display: grid;
+        gap: 18px;
+        position: relative;
+      }
+      .top {
+        grid-template-columns: 1.25fr 1.35fr 0.85fr 0.95fr;
+      }
+      .mid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .low {
+        grid-template-columns: 1.2fr 0.95fr 1fr;
+      }
+      .bottom {
+        grid-template-columns: 1.1fr 1.2fr 0.9fr;
+      }
+      /* modules */
+      .mod {
+        position: relative;
+        min-width: 0;
+        color: #e7e6e1;
+        border-radius: 12px;
+        padding: 20px 22px 18px;
+        background:
+          radial-gradient(
+            circle at 10px 10px,
+            #d8dadb 0 2px,
+            #6e7275 3px,
+            transparent 3.5px
+          ),
+          radial-gradient(
+            circle at calc(100% - 10px) 10px,
+            #d8dadb 0 2px,
+            #6e7275 3px,
+            transparent 3.5px
+          ),
+          radial-gradient(
+            circle at 10px calc(100% - 10px),
+            #d8dadb 0 2px,
+            #6e7275 3px,
+            transparent 3.5px
+          ),
+          radial-gradient(
+            circle at calc(100% - 10px) calc(100% - 10px),
+            #d8dadb 0 2px,
+            #6e7275 3px,
+            transparent 3.5px
+          ),
+          linear-gradient(180deg, #232326, #101012 40%, #0b0b0d);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.12),
+          inset 0 0 0 1px #000,
+          0 0 0 3px #9ea2a5,
+          0 0 0 4px #e9eaea,
+          0 0 0 5px #6f7376,
+          0 5px 10px rgba(0, 0, 0, 0.35);
+      }
+      .s1 {
+        --c: var(--or);
+      }
+      .s2 {
+        --c: var(--pu);
+      }
+      .dr {
+        --c: var(--gr);
+      }
+      .fx,
+      .mx {
+        --c: var(--wh);
+      }
+      .mh {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 6px;
+      }
+      .led {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--c);
+        box-shadow:
+          0 0 10px var(--c),
+          inset 0 1px 2px rgba(255, 255, 255, 0.6);
+      }
+      h2 {
+        flex: 1;
+        min-width: 120px;
+        margin: 0;
+        font:
+          700 13px Manrope,
+          sans-serif;
+        letter-spacing: 0.08em;
+      }
+      p.sub {
+        margin: 0 0 12px;
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        color: #8d9195;
+      }
+      /* LCD */
+      .lcd {
+        position: relative;
+        background: #08090c;
+        border-radius: 8px;
+        color: var(--or);
+        font-family: "Pixelify Sans", "VT323", monospace;
+        text-shadow: 0 0 8px rgba(255, 134, 28, 0.7);
+        box-shadow:
+          inset 0 0 20px rgba(255, 134, 28, 0.15),
+          inset 0 2px 6px #000,
+          0 0 0 2px #2b2b2e;
+        overflow: hidden;
+      }
+      .lcd::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: repeating-linear-gradient(
+          0deg,
+          rgba(0, 0, 0, 0.28) 0 1px,
+          transparent 1px 3px
+        );
+      }
+      .mod.lcd {
+        padding: 16px 20px;
+        box-shadow:
+          inset 0 0 22px rgba(255, 134, 28, 0.15),
+          inset 0 2px 6px #000,
+          0 0 0 3px #9ea2a5,
+          0 0 0 4px #e9eaea,
+          0 0 0 5px #6f7376,
+          0 5px 10px rgba(0, 0, 0, 0.35);
+      }
+      .tt {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      h1 {
+        margin: 0;
+        font:
+          400 clamp(24px, 3vw, 40px) "Press Start 2P",
+          "Pixelify Sans",
+          monospace;
+        line-height: 1.5;
+        text-transform: uppercase;
+      }
+      .lead {
+        margin: 10px 0 0;
+        font:
+          500 13px "IBM Plex Mono",
+          monospace;
+        opacity: 0.85;
+      }
+      .scopebox {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 6px;
+      }
+      #scope {
+        width: 100%;
+        height: 72px;
+        image-rendering: pixelated;
+      }
+      .scopebox small {
+        font-size: 12px;
+        letter-spacing: 0.14em;
+        opacity: 0.8;
+      }
+      .mini {
+        padding: 3px 10px;
+        font-size: 15px;
+        letter-spacing: 0.08em;
+      }
+      .ctrl {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+      }
+      .seg {
+        padding: 8px 12px;
+        font-size: 24px;
+      }
+      .moods {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 6px;
+      }
+      .moods button {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 3px 0;
+        border: 0;
+        background: none;
+        color: #e7e6e1;
+        font:
+          700 12px Manrope,
+          sans-serif;
+        letter-spacing: 0.12em;
+        text-align: left;
+        cursor: pointer;
+      }
+      .moods button::before {
+        content: "";
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #3a3b3e;
+        box-shadow: inset 0 1px 2px #000;
+      }
+      .moods button.on::before {
+        background: var(--or);
+        box-shadow: 0 0 10px var(--or);
+      }
+      /* wave keys */
+      .waves {
+        display: flex;
+        gap: 6px;
+      }
+      .waves button {
+        width: 42px;
+        height: 26px;
+        padding: 3px;
+        border: 0;
+        border-radius: 5px;
+        cursor: pointer;
+        background: linear-gradient(#444649, #222326);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.2),
+          0 3px 0 #000,
+          0 4px 4px rgba(0, 0, 0, 0.5);
+      }
+      .waves svg {
+        width: 100%;
+        height: 100%;
+        fill: none;
+        stroke: #9a9ea1;
+        stroke-width: 2.5;
+      }
+      .waves button.on {
+        transform: translateY(2px);
+        background: linear-gradient(#2f3032, #1a1b1d);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.12),
+          0 1px 0 #000;
+      }
+      .waves button.on svg {
+        stroke: var(--c);
+        filter: drop-shadow(0 0 4px var(--c));
+      }
+      /* sequencer pads */
+      .grid {
+        display: grid;
+        grid-template-columns: 54px repeat(16, 1fr);
+        gap: 4px;
+        align-items: center;
+        min-width: 0;
+        overflow-x: auto;
+        padding: 2px 2px 6px;
+      }
+      .lbl {
+        background: #050506;
+        color: #e7e6e1;
+        border: 1px solid #38393c;
+        border-radius: 4px;
+        padding: 7px 0;
+        text-align: center;
+        font:
+          600 11px "IBM Plex Mono",
+          monospace;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      }
+      .cell {
+        aspect-ratio: 1;
+        min-width: 16px;
+        padding: 0;
+        border: 0;
+        border-radius: 4px;
+        cursor: pointer;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.28),
+          rgba(255, 255, 255, 0.08) 55%,
+          rgba(255, 255, 255, 0.14)
+        );
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.45),
+          inset 0 -2px 3px rgba(0, 0, 0, 0.35),
+          0 2px 3px rgba(0, 0, 0, 0.6);
+      }
+      .cell[data-c="0"],
+      .cell[data-c="4"],
+      .cell[data-c="8"],
+      .cell[data-c="12"] {
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.38),
+          rgba(255, 255, 255, 0.15) 55%,
+          rgba(255, 255, 255, 0.22)
+        );
+      }
+      .cell.on {
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.6),
+          var(--c) 38%,
+          var(--c)
+        );
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.7),
+          0 0 14px var(--c),
+          0 0 3px var(--c);
+      }
+      .cell.now {
+        outline: 2px solid #fff;
+        outline-offset: 1px;
+      }
+      .stp {
+        font:
+          500 10px "IBM Plex Mono",
+          monospace;
+        text-align: center;
+        color: #8d9195;
+      }
+      /* knobs */
+      .knob {
+        --c: var(--or);
+        --f: 0;
+        position: relative;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        cursor: ns-resize;
+        outline: none;
+        touch-action: none;
+        flex: none;
+      }
+      .knob::before {
+        content: "";
+        position: absolute;
+        inset: -7px;
+        border-radius: 50%;
+        background: conic-gradient(
+          from 225deg,
+          var(--c) calc(var(--f) * 270deg),
+          rgba(255, 255, 255, 0.12) 0 270deg,
+          transparent 0
+        );
+        -webkit-mask: radial-gradient(circle, transparent 62%, #000 64%);
+        mask: radial-gradient(circle, transparent 62%, #000 64%);
+        filter: drop-shadow(0 0 4px var(--c));
+      }
+      .cap {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background:
+          radial-gradient(
+            circle at 35% 28%,
+            rgba(255, 255, 255, 0.9),
+            rgba(255, 255, 255, 0) 42%
+          ),
+          repeating-conic-gradient(#e2e5e6 0 5deg, #a2a7aa 5deg 10deg);
+        box-shadow:
+          0 0 0 3px #1a1a1c,
+          0 0 0 4px #5b5f62,
+          0 5px 8px rgba(0, 0, 0, 0.6),
+          inset 0 -3px 5px rgba(0, 0, 0, 0.35),
+          inset 0 2px 2px rgba(255, 255, 255, 0.8);
+      }
+      .rot {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+      .rot i {
+        position: absolute;
+        left: 50%;
+        top: 5px;
+        width: 4px;
+        height: 13px;
+        margin-left: -2px;
+        border-radius: 2px;
+        background: var(--c);
+        box-shadow: 0 0 6px var(--c);
+      }
+      .knob:focus-visible {
+        outline: 2px solid #fff;
+        outline-offset: 9px;
+      }
+      .knob.lg {
+        width: 68px;
+        height: 68px;
+      }
+      .hid {
+        position: absolute;
+        opacity: 0;
+        width: 1px;
+        height: 1px;
+        pointer-events: none;
+      }
+      .ctl {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+      }
+      .ctl span {
+        order: 2;
+        font:
+          700 10px Manrope,
+          sans-serif;
+        letter-spacing: 0.06em;
+        color: #e7e6e1;
+      }
+      .fxrow {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-top: 14px;
+      }
+      .fxrow > div {
+        display: flex;
+        justify-content: center;
+      }
+      .fxrow i {
+        display: none;
+      }
       .route {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
-        gap: 6px;
-        margin: 0 0 8px;
-        font:
-          11px "IBM Plex Mono",
-          ui-monospace,
-          monospace;
+        gap: 4px;
+        margin: 0 0 6px;
       }
       .route span {
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid #3a3b3e;
         border-radius: 4px;
-        padding: 2px 8px;
-        letter-spacing: 0.06em;
-      }
-      .route .snd {
-        border-style: dashed;
-        opacity: 0.7;
+        padding: 2px 6px;
+        font:
+          500 10px "IBM Plex Mono",
+          monospace;
+        color: #c9ccce;
       }
       .route em {
         font-style: normal;
-        opacity: 0.5;
-      }
-      .fxrow {
-        margin-top: 6px;
-      }
-      body::after {
-        content: "";
-        position: fixed;
-        inset: 0;
-        z-index: 0;
-        pointer-events: none;
-        -webkit-backdrop-filter: blur(1.2px);
-        backdrop-filter: blur(1.2px);
-        background:
-          radial-gradient(
-            ellipse 80% 70% at 50% 45%,
-            transparent 40%,
-            rgba(170, 185, 235, 0.07) 100%
-          ),
-          radial-gradient(
-            260px 170px at 6% 12%,
-            rgba(220, 230, 255, 0.06),
-            transparent
-          ),
-          radial-gradient(
-            320px 200px at 95% 80%,
-            rgba(220, 230, 255, 0.05),
-            transparent
-          ),
-          radial-gradient(
-            220px 150px at 72% 3%,
-            rgba(200, 210, 255, 0.05),
-            transparent
-          ),
-          radial-gradient(
-            900px 400px at 30% 20%,
-            rgba(220, 225, 255, 0.03),
-            transparent
-          );
-        animation: breathe 14s ease-in-out infinite alternate;
-      }
-      @keyframes breathe {
-        from {
-          opacity: 0.75;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-      header,
-      main {
-        position: relative;
-        z-index: 1;
-      }
-      header {
-        display: flex;
-        gap: 20px;
-        align-items: flex-end;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        max-width: 1000px;
-        margin: 0 auto 14px;
-      }
-      .mono,
-      .tag,
-      .sig,
-      section p,
-      .lbl,
-      .ctl span,
-      .mute,
-      .ch b,
-      #play {
-        font-family: "IBM Plex Mono", ui-monospace, monospace;
-      }
-      .tag {
-        display: inline-block;
-        color: #c9b8ff;
+        color: #6a6e71;
         font-size: 11px;
-        letter-spacing: 0.12em;
-        border: 1px solid #c9b8ff55;
-        padding: 2px 8px;
-        border-radius: 3px;
       }
-      h1 {
-        font:
-          600 clamp(26px, 6vw, 44px) Unbounded,
-          system-ui,
-          sans-serif;
-        margin: 8px 0 4px;
-        background: linear-gradient(90deg, #e0529c, #9d7cf0, #5cc8e0);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
+      /* mixer */
+      .mixer {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
       }
-      .lead {
-        margin: 0;
-        font-size: 12px;
-        letter-spacing: 0.08em;
-        opacity: 0.7;
-      }
-      .top {
-        display: flex;
-        gap: 16px;
+      .ch {
+        display: grid;
+        grid-template-columns: 34px 1fr;
+        grid-template-areas: "n n" "v p" "v m";
+        gap: 8px 10px;
         align-items: center;
+        padding: 10px;
+        border-radius: 8px;
+        background: #0d0d0f;
+        box-shadow:
+          inset 0 1px 3px #000,
+          0 0 0 1px #2a2b2d;
+      }
+      .ch b {
+        grid-area: n;
+        font:
+          700 11px Manrope,
+          sans-serif;
+        letter-spacing: 0.1em;
+      }
+      .ch > .ctl:nth-of-type(1) {
+        grid-area: v;
+        position: relative;
+        display: block;
+        width: 34px;
+        height: 150px;
+      }
+      .ch > .ctl:nth-of-type(1) span {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        text-align: center;
+      }
+      .ch > .ctl:nth-of-type(1) input {
+        position: absolute;
+        left: 50%;
+        top: 44%;
+        width: 112px;
+        margin: 0;
+        transform: translate(-50%, -50%) rotate(-90deg);
+      }
+      .ch > .ctl:nth-of-type(2) {
+        grid-area: p;
+      }
+      .ch .knob {
+        width: 44px;
+        height: 44px;
+      }
+      .ch .rot i {
+        height: 10px;
+        top: 4px;
+      }
+      input[type="range"] {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 26px;
+        background: transparent;
+      }
+      input[type="range"]::-webkit-slider-runnable-track {
+        height: 8px;
+        border-radius: 4px;
+        background: linear-gradient(#000, #1b1b1d);
+        box-shadow:
+          inset 0 1px 3px #000,
+          0 1px 0 rgba(255, 255, 255, 0.15);
+      }
+      input[type="range"]::-moz-range-track {
+        height: 8px;
+        border-radius: 4px;
+        background: #111;
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 30px;
+        height: 18px;
+        margin-top: -5px;
+        border: 0;
+        border-radius: 3px;
+        background: linear-gradient(
+          90deg,
+          #7e8386,
+          #eef0f1 35%,
+          #a3a8ab 60%,
+          #6a6e71
+        );
+        box-shadow:
+          0 3px 5px rgba(0, 0, 0, 0.6),
+          inset 0 0 0 1px rgba(0, 0, 0, 0.4);
+      }
+      input[type="range"]::-moz-range-thumb {
+        width: 30px;
+        height: 18px;
+        border: 0;
+        border-radius: 3px;
+        background: linear-gradient(
+          90deg,
+          #7e8386,
+          #eef0f1 35%,
+          #a3a8ab 60%,
+          #6a6e71
+        );
+      }
+      .mute {
+        grid-area: m;
+        padding: 7px 0;
+        border: 0;
+        border-radius: 5px;
+        cursor: pointer;
+        color: #e7e6e1;
+        font:
+          700 11px Manrope,
+          sans-serif;
+        letter-spacing: 0.1em;
+        background: linear-gradient(#4a4c4f, #26272a);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.25),
+          0 3px 0 #000,
+          0 4px 5px rgba(0, 0, 0, 0.5);
+      }
+      .mute.on {
+        transform: translateY(2px);
+        background: linear-gradient(#2a2b2d, #161618);
+        color: var(--c);
+        text-shadow: 0 0 8px var(--c);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.1),
+          0 1px 0 #000;
+      }
+      /* bottom */
+      .plate {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 14px 18px;
+        border-radius: 10px;
+        color: #1d1d1f;
+        background: linear-gradient(180deg, #d9d8d2, #c4c3bd);
+        box-shadow:
+          inset 0 1px 0 #fff,
+          inset 0 -2px 4px rgba(0, 0, 0, 0.2),
+          0 0 0 2px #9ea2a5;
+      }
+      .grille {
+        flex: none;
+        width: 76px;
+        height: 62px;
+        background: radial-gradient(circle, #2a2a2c 0 2.2px, transparent 2.6px)
+          0 0/9px 9px;
+        opacity: 0.8;
+      }
+      .plate b {
+        display: block;
+        font:
+          700 15px Manrope,
+          sans-serif;
+        letter-spacing: 0.08em;
+      }
+      .plate small {
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        color: #55575a;
+      }
+      .stat {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        font-size: 20px;
         flex-wrap: wrap;
       }
       .sig {
         display: flex;
         align-items: center;
         gap: 8px;
-        font-size: 12px;
         letter-spacing: 0.1em;
-        opacity: 0.8;
+        opacity: 0.55;
       }
       .sig i {
-        width: 8px;
-        height: 8px;
+        width: 10px;
+        height: 10px;
         border-radius: 50%;
-        background: #4a4560;
+        background: #3a2a14;
       }
       .sig.live {
         opacity: 1;
-        color: #7df0c0;
       }
       .sig.live i {
-        background: #7df0c0;
-        box-shadow: 0 0 10px #7df0c0;
+        background: var(--or);
+        box-shadow: 0 0 10px var(--or);
       }
-      button,
-      input {
-        font: inherit;
+      .transport {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 14px;
+        border-radius: 10px;
+        background: linear-gradient(180deg, #c9ccce, #aeb2b5);
+        box-shadow:
+          inset 0 1px 0 #fff,
+          inset 0 -3px 6px rgba(0, 0, 0, 0.2),
+          0 0 0 2px #8c9093;
       }
       #play {
-        background: transparent;
-        color: #5cc8e0;
-        border: 1px solid #5cc8e0;
-        border-radius: 4px;
-        padding: 10px 22px;
-        font-size: 13px;
-        letter-spacing: 0.1em;
+        width: 100%;
+        max-width: 220px;
+        padding: 16px 0;
+        border: 0;
+        border-radius: 10px;
         cursor: pointer;
+        color: var(--or);
+        font:
+          700 18px Manrope,
+          sans-serif;
+        letter-spacing: 0.2em;
+        text-shadow: 0 0 10px var(--or);
+        background: linear-gradient(180deg, #2a2a2d, #0d0d0f);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.25),
+          0 5px 0 #000,
+          0 7px 10px rgba(0, 0, 0, 0.5);
       }
       #play.on {
-        background: #e0529c;
-        border-color: #e0529c;
-        color: #0a0818;
-        box-shadow: 0 0 16px rgba(224, 82, 156, 0.6);
-      }
-      main {
-        display: grid;
-        gap: 12px;
-        max-width: 1000px;
-        margin: 0 auto;
-      }
-      section {
-        background: rgba(24, 16, 48, 0.42);
-        -webkit-backdrop-filter: blur(10px) saturate(1.1);
-        backdrop-filter: blur(10px) saturate(1.1);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 12px;
-        padding: 14px;
+        transform: translateY(3px);
+        color: #fff;
         box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.06),
-          inset 0 0 32px rgba(120, 90, 220, 0.07),
-          calc(var(--ry, 0) * -1px) calc(8px + var(--rx, 0) * 1px) 30px
-            rgba(0, 0, 0, 0.25);
+          inset 0 1px 0 rgba(255, 255, 255, 0.15),
+          0 2px 0 #000,
+          0 0 18px rgba(255, 134, 28, 0.5);
       }
-      section h2 {
-        font:
-          600 12px Unbounded,
-          system-ui,
-          sans-serif;
-        color: var(--c);
-        margin: 0 0 4px;
-        letter-spacing: 0.04em;
+      /* braided cables */
+      .cab {
+        position: absolute;
+        overflow: visible;
+        pointer-events: none;
+        z-index: 2;
       }
-      section p {
-        margin: 0 0 10px;
-        font-size: 11px;
-        letter-spacing: 0.04em;
-        opacity: 0.65;
-        line-height: 1.5;
-      }
-      .s1 {
-        --c: #e0529c;
-      }
-      .s2 {
-        --c: #5cc8e0;
-      }
-      .dr {
-        --c: #9d7cf0;
-      }
-      .fx {
-        --c: #c98be8;
-      }
-      .mx {
-        --c: #7c93e8;
-      }
-      .waves {
-        display: flex;
-        gap: 6px;
-        margin-bottom: 10px;
-      }
-      .waves button {
-        width: 44px;
-        height: 28px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        background: transparent;
-        border-radius: 5px;
-        cursor: pointer;
-        padding: 2px;
-      }
-      .waves button.on {
-        border-color: var(--c);
-        box-shadow: 0 0 10px -2px var(--c);
-      }
-      .waves svg {
-        width: 100%;
-        height: 100%;
+      .cab path {
         fill: none;
-        stroke: rgba(255, 255, 255, 0.45);
+        stroke-linecap: round;
+      }
+      .cab .sh {
+        stroke: rgba(0, 0, 0, 0.4);
+        stroke-width: 16;
+        transform: translate(3px, 5px);
+      }
+      .cab .bs {
+        stroke: var(--cc);
+        stroke-width: 14;
+      }
+      .cab .br {
+        stroke: var(--cl);
+        stroke-width: 14;
+        stroke-opacity: 0.5;
+        stroke-dasharray: 3 6;
+      }
+      .cab .hi {
+        stroke: rgba(255, 255, 255, 0.35);
         stroke-width: 2.5;
+        transform: translate(-3px, -3px);
       }
-      .waves button.on svg {
-        stroke: var(--c);
+      .cab rect {
+        fill: url(#chr);
+        stroke: #4b4f52;
+        stroke-width: 1;
       }
-      .grid {
-        display: grid;
-        grid-template-columns: 38px repeat(16, 1fr);
-        gap: 3px;
-        overflow-x: auto;
-        min-width: 0;
-        align-items: center;
+      .cab.l {
+        left: -118px;
+        top: 200px;
+        width: 150px;
+        height: 300px;
+        --cc: #6b3fc4;
+        --cl: #c9a9ff;
       }
-      .lbl {
-        font-size: 10px;
-        letter-spacing: 0.06em;
-        opacity: 0.6;
+      .cab.r1 {
+        right: -118px;
+        top: 60px;
+        width: 150px;
+        height: 360px;
+        --cc: #e86a00;
+        --cl: #ffc48a;
       }
-      .cell {
-        aspect-ratio: 1;
-        min-width: 16px;
-        border: 0;
-        border-radius: 3px;
-        background: rgba(255, 255, 255, 0.06);
-        cursor: pointer;
-        padding: 0;
+      .cab.r2 {
+        right: -108px;
+        bottom: 120px;
+        width: 140px;
+        height: 240px;
+        --cc: #3fb030;
+        --cl: #b9ffb0;
       }
-      .cell:nth-child(n) {
-        outline: 0;
-      }
-      .cell.on {
-        background: var(--c);
-        box-shadow: 0 0 8px var(--c);
-      }
-      .cell.now {
-        background: rgba(255, 255, 255, 0.28);
-      }
-      .cell.on.now {
-        background: #fff;
-        box-shadow: 0 0 12px var(--c);
-      }
-      .ctl {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        min-width: 120px;
-        flex: 1;
-      }
-      .ctl span {
-        font-size: 11px;
-        letter-spacing: 0.05em;
-      }
-      input[type="range"] {
-        width: 100%;
-        accent-color: var(--c, #5cc8e0);
-      }
-      .fxrow {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 12px;
-      }
-      .fxrow > div {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      }
-      .fxrow i {
-        font-style: normal;
-        font-size: 16px;
-        opacity: 0.5;
-      }
-      .fxrow .ctl {
-        min-width: 0;
-      }
-      .mixer {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 12px;
-      }
-      .ch {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        padding: 10px;
-        border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-      .ch b {
-        font-weight: 500;
-        font-size: 12px;
-        letter-spacing: 0.06em;
-      }
-      .mute {
-        align-self: flex-start;
-        border: 1px solid rgba(255, 255, 255, 0.25);
-        background: transparent;
-        border-radius: 4px;
-        padding: 2px 12px;
-        cursor: pointer;
-        color: var(--ink);
-        font-size: 11px;
-      }
-      .mute.on {
-        border-color: var(--c);
-        color: var(--c);
-        box-shadow: 0 0 8px -2px var(--c);
-      }
-      @media (min-width: 760px) {
-        main {
-          grid-template-columns: 1fr 1fr;
+      @media (max-width: 1000px) {
+        .top,
+        .mid,
+        .low,
+        .bottom {
+          grid-template-columns: 1fr;
         }
-        .dr,
-        .fx,
-        .mx {
-          grid-column: 1/-1;
+        .cab,
+        .pipe {
+          display: none;
+        }
+        .chassis {
+          padding: 22px 16px;
+          border-radius: 20px;
         }
       }
       @media (prefers-reduced-motion: reduce) {
-        #rain {
-          display: none;
-        }
         *,
         *::before,
         *::after {
-          animation: none !important;
           transition: none !important;
+        }
+      }
+      html {
+        background: #050507;
+      }
+      body {
+        background: #050507;
+      }
+      body::after {
+        display: none;
+      }
+      .rainmode {
+        display: flex;
+        gap: 14px;
+        margin-left: auto;
+      }
+      .rainmode button {
+        padding: 0;
+        border: 0;
+        background: none;
+        color: inherit;
+        font: inherit;
+        font-size: 17px;
+        letter-spacing: 0.08em;
+        cursor: pointer;
+        opacity: 0.5;
+      }
+      .rainmode button::before {
+        content: "□ ";
+      }
+      .rainmode button.on {
+        opacity: 1;
+      }
+      .rainmode button.on::before {
+        content: "■ ";
+      }
+      button {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+      }
+      @media (max-width: 1000px) {
+        .rainmode {
+          display: none;
+        }
+        input[type="range"] {
+          touch-action: none;
+        }
+      }
+      @media (max-width: 700px) {
+        .stage {
+          padding: 10px 8px 28px;
+        }
+        .chassis {
+          padding: 14px 10px;
+          gap: 14px;
+          border-radius: 18px;
+        }
+        .row {
+          gap: 14px;
+        }
+        .top {
+          grid-template-columns: 1fr 1fr;
+        }
+        .top > .tt,
+        .top > .scopebox {
+          grid-column: 1/-1;
+        }
+        .mod {
+          padding: 16px 12px 14px;
+        }
+        .mod.lcd {
+          padding: 12px 14px;
+        }
+        h1 {
+          font-size: 26px;
+        }
+        .grid {
+          grid-template-columns: 40px repeat(16, 26px);
+          gap: 4px;
+          -webkit-overflow-scrolling: touch;
+        }
+        .lbl {
+          position: sticky;
+          left: 0;
+          z-index: 2;
+          font-size: 10px;
+          padding: 8px 0;
+        }
+        .cell {
+          min-width: 26px;
+          width: 26px;
+        }
+        .waves button {
+          width: 44px;
+          height: 34px;
+        }
+        .mh {
+          gap: 8px;
+        }
+        .moods button {
+          padding: 6px 0;
+        }
+        .fxrow {
+          gap: 4px;
+        }
+        .fxrow .knob {
+          width: 48px;
+          height: 48px;
+        }
+        .ctl span {
+          font-size: 9px;
+          letter-spacing: 0.02em;
+        }
+        .mixer {
+          gap: 6px;
+        }
+        .ch {
+          grid-template-columns: 28px 1fr;
+          gap: 6px;
+          padding: 8px;
+        }
+        .ch .knob {
+          width: 38px;
+          height: 38px;
+        }
+        .ch > .ctl:nth-of-type(1) {
+          width: 28px;
+        }
+        .mute {
+          padding: 9px 0;
+        }
+        .row.bottom {
+          gap: 12px;
+        }
+        .stat {
+          font-size: 17px;
+          gap: 14px;
+        }
+        #play {
+          max-width: none;
+          padding: 18px 0;
         }
       }
     </style>
   </head>
   <body>
-    <canvas id="rain" aria-hidden="true"></canvas>
+    <canvas id="datarain" aria-hidden="true"></canvas>
     <div class="stage" id="stage">
       <div class="device" id="device">
-        <header>
-          <div>
-            <span class="tag">東京 · 03:00</span>
-            <h1>Ночная станция</h1>
-            <p class="lead">ОПЕРАТОР: ставь ноты, размывай звук</p>
+        <svg width="0" height="0" aria-hidden="true" style="position: absolute">
+          <defs>
+            <linearGradient id="chr" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#f4f6f7" />
+              <stop offset=".5" stop-color="#8f9496" />
+              <stop offset="1" stop-color="#d9dcde" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="chassis">
+          <i class="pipe pl" aria-hidden="true"></i
+          ><i class="pipe pr" aria-hidden="true"></i>
+          <div class="row top">
+            <div class="mod lcd tt">
+              <h1>AETHER</h1>
+              <p class="lead">Создай своё пространство для концентрации</p>
+            </div>
+            <div class="mod lcd scopebox">
+              <canvas
+                id="scope"
+                width="320"
+                height="72"
+                aria-label="Осциллограф выходного сигнала"
+              ></canvas
+              ><small>OUTPUT SIGNAL</small>
+            </div>
+            <div class="mod ctrl">
+              <div class="lcd seg" id="bpmv">BPM 74</div>
+              <input
+                id="bpm"
+                type="range"
+                min="60"
+                max="120"
+                value="72"
+                aria-label="BPM"
+              />
+            </div>
+            <div class="mod moods" id="moods"></div>
           </div>
-          <div class="top">
-            <div class="sig" id="sig">
-              <i></i><span id="sigt">STANDBY</span>
-            </div>
-            <label class="ctl" style="width: 150px"
-              ><span id="bpmv">BPM 62</span
-              ><input id="bpm" type="range" min="50" max="100" value="62"
-            /></label>
-            <button id="play">PLAY</button>
+          <div class="row mid">
+            <section class="mod s1">
+              <div class="mh">
+                <i class="led"></i>
+                <h2>SYNTH 01 / BODY</h2>
+                <div class="lcd mini" id="lcd1">TRIANGLE</div>
+                <div class="waves" id="w1"></div>
+              </div>
+              <p class="sub">LOW / WARM / SOFT CHORDS</p>
+              <div class="grid" id="g1"></div>
+            </section>
+            <section class="mod s2">
+              <div class="mh">
+                <i class="led"></i>
+                <h2>SYNTH 02 / MELODY</h2>
+                <div class="lcd mini" id="lcd2">SINE</div>
+                <div class="waves" id="w2"></div>
+              </div>
+              <p class="sub">SOFT / SHORT / SIMPLE</p>
+              <div class="grid" id="g2"></div>
+            </section>
           </div>
-        </header>
-        <main>
-          <section class="s1">
-            <h2>SYNTH 01 / BODY</h2>
-            <p>LOW / WARM / SLOW</p>
-            <div class="waves" id="w1"></div>
-            <div class="grid" id="g1"></div>
-          </section>
-          <section class="s2">
-            <h2>SYNTH 02 / GHOST</h2>
-            <p>HIGH / AIRY / SPACIOUS</p>
-            <div class="waves" id="w2"></div>
-            <div class="grid" id="g2"></div>
-          </section>
-          <section class="dr">
-            <h2>DRUM MACHINE / PULSE</h2>
-            <p>SPARSE / SOFT / DEEP</p>
-            <div class="grid" id="gd"></div>
-          </section>
-          <section class="fx">
-            <h2>EFFECTS / SPACE</h2>
-            <div class="route">
-              <span class="snd">BODY + GHOST</span><em>→</em
-              ><span>DISTORTION</span><em>→</em><span>CHORUS</span><em>→</em
-              ><span>DELAY</span><em>→</em><span>REVERB</span>
+          <div class="row low">
+            <section class="mod dr">
+              <div class="mh">
+                <i class="led"></i>
+                <h2>DRUM MACHINE / RHYTHM</h2>
+              </div>
+              <p class="sub">QUIET / SOFT / STEADY</p>
+              <div class="grid" id="gd"></div>
+            </section>
+            <section class="mod fx">
+              <div class="mh">
+                <i class="led"></i>
+                <h2>FX CHAIN / ATMOSPHERE</h2>
+              </div>
+              <div class="route">
+                <span class="snd">BODY + MELODY</span><em>→</em
+                ><span>DISTORTION</span><em>→</em><span>CHORUS</span><em>→</em
+                ><span>DELAY</span><em>→</em><span>REVERB</span>
+              </div>
+              <div class="route">
+                <span>SEND</span><span>MELODY ⇢ DELAY</span
+                ><span>RHYTHM ⇢ REVERB</span>
+              </div>
+              <div class="fxrow" id="fx"></div>
+            </section>
+            <section class="mod mx">
+              <div class="mh">
+                <i class="led"></i>
+                <h2>MIXER / CHANNELS</h2>
+              </div>
+              <div class="mixer" id="mx"></div>
+            </section>
+          </div>
+          <div class="row bottom">
+            <div class="plate">
+              <i class="grille" aria-hidden="true"></i>
+              <div>
+                <b>AETHER</b><small>A QUIETER MIND<br />A WIDER WORLD</small>
+              </div>
             </div>
-            <div class="route">
-              <span class="snd">SEND</span><span class="snd">GHOST ⇢ DELAY</span
-              ><span class="snd">PULSE ⇢ REVERB</span>
+            <div class="mod lcd stat">
+              <div class="sig" id="sig">
+                <i></i><span id="sigt">STANDBY</span>
+              </div>
+              <div>STEP <b id="stepd">--/16</b></div>
+              <div
+                class="rainmode"
+                id="rainmode"
+                role="group"
+                aria-label="Режим цифрового дождя"
+              >
+                <button class="on" data-m="focus">FOCUS</button
+                ><button data-m="signal">SIGNAL</button>
+              </div>
             </div>
-            <div class="fxrow" id="fx"></div>
-          </section>
-          <section class="mx">
-            <h2>MIXER / CHANNELS</h2>
-            <p>VOL / PAN / MUTE</p>
-            <div class="mixer" id="mx"></div>
-          </section>
-        </main>
+            <div class="transport"><button id="play">PLAY</button></div>
+          </div>
+        </div>
+        <svg class="cab l" aria-hidden="true">
+          <path class="sh" d="M148 150 C96 150 70 150 62 192 S38 282 -28 292" />
+          <path class="bs" d="M148 150 C96 150 70 150 62 192 S38 282 -28 292" />
+          <path class="br" d="M148 150 C96 150 70 150 62 192 S38 282 -28 292" />
+          <path class="hi" d="M148 150 C96 150 70 150 62 192 S38 282 -28 292" />
+          <rect x="128" y="132" width="24" height="36" rx="5" /></svg
+        ><svg class="cab r1" aria-hidden="true">
+          <path class="sh" d="M2 120 C60 120 82 120 92 72 S112 10 190 0" />
+          <path class="bs" d="M2 120 C60 120 82 120 92 72 S112 10 190 0" />
+          <path class="br" d="M2 120 C60 120 82 120 92 72 S112 10 190 0" />
+          <path class="hi" d="M2 120 C60 120 82 120 92 72 S112 10 190 0" />
+          <rect x="-2" y="102" width="24" height="36" rx="5" /></svg
+        ><svg class="cab r2" aria-hidden="true">
+          <path class="sh" d="M2 100 C58 100 70 100 80 150 S100 228 170 238" />
+          <path class="bs" d="M2 100 C58 100 70 100 80 150 S100 228 170 238" />
+          <path class="br" d="M2 100 C58 100 70 100 80 150 S100 228 170 238" />
+          <path class="hi" d="M2 100 C58 100 70 100 80 150 S100 228 170 238" />
+          <rect x="-2" y="82" width="24" height="36" rx="5" />
+        </svg>
       </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
@@ -554,56 +1243,91 @@
         square: "SQUARE",
       };
       const NOTES = [
-        ["G4", "E4", "D4", "C4", "A3"],
-        ["A5", "G5", "E5", "D5", "C5"],
+        ["Fmaj7", "Em7", "Dm7", "Cmaj7", "Am7"],
+        ["E5", "D5", "C5", "B4", "A4"],
       ];
+      const CH = {
+        Fmaj7: ["F3", "A3", "C4", "E4"],
+        Em7: ["E3", "G3", "B3", "D4"],
+        Dm7: ["D3", "F3", "A3", "C4"],
+        Cmaj7: ["C3", "E3", "G3", "B3"],
+        Am7: ["A2", "C3", "E3", "G3"],
+      };
+      const NT = (i, r) => {
+        if (i) return NOTES[1][r];
+        const c = CH[NOTES[0][r]];
+        return c.concat(Tone.Frequency(c[0]).transpose(-12).toNote());
+      };
       const grid = [
-        [4, -1, -1, -1, -1, -1, -1, -1, 3, -1, -1, -1, 2, -1, -1, -1],
-        [-1, -1, -1, -1, 0, -1, -1, -1, -1, -1, 2, -1, -1, -1, 1, -1],
-        ["1000000000100000", "0000000010000000", "0010001000100000"].map((s) =>
+        [0, -1, -1, -1, 1, -1, -1, -1, 2, -1, -1, -1, 3, -1, -1, -1],
+        [-1, 2, -1, 0, -1, 3, -1, 1, -1, 4, -1, 2, -1, 3, -1, -1],
+        ["1001000010010000", "0010001000100010", "1111111111111111"].map((s) =>
           [...s].map(Number),
         ),
       ];
-      const st = { ready: false, step: 0, syn: [], ch: [] };
+      const st = { ready: false, step: 0, syn: [], ch: [], dur: ["2n", "8n"] };
 
       function build() {
         const master = new Tone.Limiter(-2).toDestination();
+        st.an = new Tone.Analyser("waveform", 256);
+        master.connect(st.an);
         const fx = {
-          dist: new Tone.Distortion(0.15),
-          chorus: new Tone.Chorus(0.6, 3.5, 0.7).start(),
-          delay: new Tone.PingPongDelay("8n.", 0.5),
-          reverb: new Tone.Reverb({ decay: 12, preDelay: 0.05 }),
+          dist: new Tone.Distortion(0.1),
+          chorus: new Tone.Chorus(1.2, 3, 0.4).start(),
+          delay: new Tone.PingPongDelay("8n.", 0.3),
+          reverb: new Tone.Reverb({ decay: 2.5, preDelay: 0.02 }),
         };
         const bus = new Tone.Gain(1);
-        bus.chain(fx.dist, fx.chorus, fx.delay, fx.reverb, master);
-        fx.dist.wet.value = 0.08;
-        fx.chorus.wet.value = 0.6;
-        fx.delay.wet.value = 0.25;
-        fx.reverb.wet.value = 0.6;
+        const wob = new Tone.Vibrato(0.5, 0.06);
+        bus.chain(wob, fx.dist, fx.chorus, fx.delay, fx.reverb, master);
+        fx.dist.wet.value = 0.1;
+        fx.chorus.wet.value = 0.4;
+        fx.delay.wet.value = 0.2;
+        fx.reverb.wet.value = 0.3;
         const mk = (type, env, detune) =>
           new Tone.PolySynth(Tone.Synth, {
             oscillator: { type },
             envelope: env,
             detune,
           });
+        const fm = (o) => new Tone.PolySynth(Tone.FMSynth, o);
         st.syn = [
-          mk(
-            "triangle",
-            { attack: 0.8, decay: 1, sustain: 0.7, release: 4 },
-            -8,
-          ),
-          mk(
-            "sine",
-            { attack: 0.15, decay: 0.6, sustain: 0.3, release: 3 },
-            12,
-          ),
+          fm({
+            harmonicity: 2,
+            modulationIndex: 1.6,
+            detune: -6,
+            oscillator: { type: "sine" },
+            envelope: { attack: 0.01, decay: 1.4, sustain: 0.3, release: 1.8 },
+            modulation: { type: "sine" },
+            modulationEnvelope: {
+              attack: 0.01,
+              decay: 0.6,
+              sustain: 0.1,
+              release: 0.8,
+            },
+          }),
+          fm({
+            harmonicity: 5,
+            modulationIndex: 2.5,
+            detune: 8,
+            oscillator: { type: "sine" },
+            envelope: { attack: 0.003, decay: 0.6, sustain: 0, release: 0.8 },
+            modulation: { type: "sine" },
+            modulationEnvelope: {
+              attack: 0.003,
+              decay: 0.3,
+              sustain: 0,
+              release: 0.4,
+            },
+          }),
         ];
         st.ch = [
-          new Tone.Channel(-12, -0.2),
-          new Tone.Channel(-18, 0.3),
-          new Tone.Channel(-8, 0),
+          new Tone.Channel(-15, -0.2),
+          new Tone.Channel(-13, 0.3),
+          new Tone.Channel(-9, 0),
         ];
-        st.syn.forEach((s, i) => s.chain(st.ch[i], bus));
+        st.lp = st.syn.map(() => new Tone.Filter(4000, "lowpass"));
+        st.syn.forEach((s, i) => s.chain(st.lp[i], st.ch[i], bus));
         st.ch[2].connect(master);
         const s2 = new Tone.Gain(0.6);
         st.ch[1].connect(s2);
@@ -612,32 +1336,39 @@
         st.ch[2].connect(ds);
         ds.connect(fx.reverb);
         st.kick = new Tone.MembraneSynth({
-          volume: -4,
-          pitchDecay: 0.08,
-          octaves: 4,
-          envelope: { attack: 0.01, decay: 0.7, sustain: 0, release: 0.5 },
+          volume: -6,
+          pitchDecay: 0.05,
+          octaves: 5,
+          envelope: { attack: 0.001, decay: 0.4, sustain: 0, release: 0.2 },
         }).connect(st.ch[2]);
         st.snare = new Tone.NoiseSynth({
-          volume: -14,
-          noise: { type: "brown" },
-          envelope: { attack: 0.005, decay: 0.35, sustain: 0 },
-        }).connect(st.ch[2]);
+          volume: -12,
+          noise: { type: "white" },
+          envelope: { attack: 0.001, decay: 0.18, sustain: 0 },
+        }).chain(new Tone.Filter(1700, "bandpass"), st.ch[2]);
         st.hat = new Tone.MetalSynth({
-          volume: -28,
-          envelope: { attack: 0.001, decay: 0.08, release: 0.02 },
-        }).connect(st.ch[2]);
+          frequency: 300,
+          harmonicity: 5.1,
+          modulationIndex: 24,
+          resonance: 5000,
+          octaves: 1.2,
+          volume: -24,
+          envelope: { attack: 0.001, decay: 0.07, release: 0.02 },
+        }).chain(new Tone.Filter(6000, "highpass"), st.ch[2]);
         st.fx = fx;
         Tone.Transport.bpm.value = +$("bpm").value;
+        Tone.Transport.swing = 0.25;
+        Tone.Transport.swingSubdivision = "8n";
         Tone.Transport.scheduleRepeat((t) => {
           const c = st.step % 16;
           [0, 1].forEach((i) => {
             const r = grid[i][c];
-            if (r >= 0)
-              st.syn[i].triggerAttackRelease(NOTES[i][r], i ? "8n" : "2n", t);
+            if (r >= 0) st.syn[i].triggerAttackRelease(NT(i, r), st.dur[i], t);
           });
           if (grid[2][0][c]) st.kick.triggerAttackRelease("C1", "8n", t);
           if (grid[2][1][c]) st.snare.triggerAttackRelease("16n", t);
-          if (grid[2][2][c]) st.hat.triggerAttackRelease("C6", "32n", t, 0.6);
+          if (grid[2][2][c])
+            st.hat.triggerAttackRelease("C6", "32n", t, c % 2 ? 0.3 : 0.5);
           Tone.Draw.schedule(() => {
             document
               .querySelectorAll(".now")
@@ -645,9 +1376,10 @@
             document
               .querySelectorAll('.cell[data-c="' + c + '"]')
               .forEach((e) => e.classList.add("now"));
+            $("stepd").textContent = String(c + 1).padStart(2, "0") + "/16";
           }, t);
           st.step++;
-        }, "16n");
+        }, "8n");
         st.ready = true;
       }
       build();
@@ -675,6 +1407,13 @@
             };
             el.appendChild(b);
           }
+        el.appendChild(document.createElement("span"));
+        for (let c = 1; c <= 16; c++) {
+          const n = document.createElement("span");
+          n.className = "stp";
+          n.textContent = c;
+          el.appendChild(n);
+        }
       }
       [0, 1].forEach((i) => {
         cells(
@@ -684,7 +1423,7 @@
           (r, c) => {
             grid[i][c] = grid[i][c] === r ? -1 : r;
             if (st.ready && grid[i][c] >= 0)
-              st.syn[i].triggerAttackRelease(NOTES[i][r], i ? "8n" : "2n");
+              st.syn[i].triggerAttackRelease(NT(i, r), st.dur[i]);
           },
           NOTES[i],
         );
@@ -705,6 +1444,7 @@
               .forEach((x) => x.classList.remove("on"));
             b.classList.add("on");
             if (st.ready) st.syn[i].set({ oscillator: { type: w } });
+            $("lcd" + (i + 1)).textContent = RU[w];
           };
           $("w" + (i + 1)).appendChild(b);
         });
@@ -740,20 +1480,20 @@
         parent.appendChild(d);
       }
       [
-        ["dist", "DISTORTION", 0.08, (v) => (st.fx.dist.wet.value = v)],
-        ["chorus", "CHORUS", 0.6, (v) => (st.fx.chorus.wet.value = v)],
-        ["delay", "DELAY", 0.25, (v) => (st.fx.delay.wet.value = v)],
-        ["reverb", "REVERB", 0.6, (v) => (st.fx.reverb.wet.value = v)],
+        ["dist", "DISTORTION", 0.1, (v) => (st.fx.dist.wet.value = v)],
+        ["chorus", "CHORUS", 0.4, (v) => (st.fx.chorus.wet.value = v)],
+        ["delay", "DELAY", 0.2, (v) => (st.fx.delay.wet.value = v)],
+        ["reverb", "REVERB", 0.3, (v) => (st.fx.reverb.wet.value = v)],
       ].forEach(([k, l, v, fn], i) => {
         const w = document.createElement("div");
         if (i) w.insertAdjacentHTML("beforeend", "<i>›</i>");
         slider(w, l, 0, 1, 0.01, v, fn);
         $("fx").appendChild(w);
       });
-      ["BODY", "GHOST", "PULSE"].forEach((n, i) => {
+      ["BODY", "MELODY", "RHYTHM"].forEach((n, i) => {
         const d = document.createElement("div");
         d.className = "ch";
-        d.style.setProperty("--c", ["#FF2E97", "#19E3FF", "#A66BFF"][i]);
+        d.style.setProperty("--c", ["#FF861C", "#AA78F2", "#83FF73"][i]);
         d.innerHTML = "<b>" + n + "</b>";
         slider(
           d,
@@ -761,7 +1501,7 @@
           -40,
           0,
           1,
-          [-12, -18, -8][i],
+          [-15, -13, -9][i],
           (v) => (st.ch[i].volume.value = v),
         );
         slider(
@@ -802,6 +1542,7 @@
           b.textContent = "PLAY";
           b.classList.remove("on");
           setSig(0);
+          $("stepd").textContent = "--/16";
           document
             .querySelectorAll(".now")
             .forEach((e) => e.classList.remove("now"));
@@ -813,176 +1554,517 @@
         }
       };
 
-      /* rain on glass: canvas, behind the interface */
+      /* real knobs: enhance existing range inputs, keep them as the source of value */
       (() => {
-        const cv = $("rain"),
-          ctx = cv.getContext("2d"),
-          rm = matchMedia("(prefers-reduced-motion:reduce)");
-        if (rm.matches) return;
-        const rnd = (a, b) => a + Math.random() * (b - a);
-        const TINT = ["185,200,255", "255,140,200", "120,220,255"];
-        const pick = () => {
-          const r = Math.random();
-          return r < 0.72 ? 0 : r < 0.86 ? 1 : 2;
-        };
-        function sprite(c) {
-          const o = document.createElement("canvas");
-          o.width = o.height = 64;
-          const g = o.getContext("2d");
-          let b = g.createRadialGradient(32, 26, 2, 32, 32, 30);
-          b.addColorStop(0, "rgba(" + c + ",.04)");
-          b.addColorStop(0.7, "rgba(" + c + ",.10)");
-          b.addColorStop(1, "rgba(" + c + ",.34)");
-          g.fillStyle = b;
-          g.beginPath();
-          g.arc(32, 32, 30, 0, 7);
-          g.fill();
-          let r = g.createLinearGradient(0, 10, 0, 58);
-          r.addColorStop(0, "rgba(0,0,0,.18)");
-          r.addColorStop(0.6, "rgba(0,0,0,0)");
-          r.addColorStop(1, "rgba(" + c + ",.22)");
-          g.fillStyle = r;
-          g.beginPath();
-          g.arc(32, 32, 30, 0, 7);
-          g.fill();
-          g.fillStyle = "rgba(255,255,255,.65)";
-          g.beginPath();
-          g.ellipse(23, 20, 6, 4, -0.6, 0, 7);
-          g.fill();
-          g.fillStyle = "rgba(255,255,255,.2)";
-          g.beginPath();
-          g.arc(42, 45, 3, 0, 7);
-          g.fill();
-          return o;
+        function knob(inp, label) {
+          const min = +inp.min,
+            max = +inp.max,
+            step = +inp.step || 1,
+            k = document.createElement("div");
+          k.className = "knob";
+          k.tabIndex = 0;
+          k.setAttribute("role", "slider");
+          k.setAttribute("aria-label", label);
+          k.setAttribute("aria-valuemin", min);
+          k.setAttribute("aria-valuemax", max);
+          k.innerHTML = '<div class="cap"></div><div class="rot"><i></i></div>';
+          inp.classList.add("hid");
+          inp.tabIndex = -1;
+          inp.parentNode.insertBefore(k, inp);
+          const f = () => (inp.value - min) / (max - min);
+          const draw = () => {
+            k.style.setProperty("--f", f());
+            k.querySelector(".rot").style.transform =
+              "rotate(" + (-135 + 270 * f()) + "deg)";
+            k.setAttribute("aria-valuenow", inp.value);
+          };
+          const set = (v) => {
+            v = Math.max(min, Math.min(max, Math.round(v / step) * step));
+            if (v !== +inp.value) {
+              inp.value = v;
+              inp.dispatchEvent(new Event("input"));
+            }
+            draw();
+          };
+          let sy = 0,
+            sv = 0,
+            pid = null;
+          k.addEventListener("pointerdown", (e) => {
+            pid = e.pointerId;
+            sy = e.clientY;
+            sv = +inp.value;
+            k.setPointerCapture(pid);
+            e.preventDefault();
+            e.stopPropagation();
+          });
+          k.addEventListener("pointermove", (e) => {
+            if (e.pointerId === pid)
+              set(sv + ((sy - e.clientY) / 150) * (max - min));
+          });
+          ["pointerup", "pointercancel", "lostpointercapture"].forEach((n) =>
+            k.addEventListener(n, () => {
+              pid = null;
+            }),
+          );
+          k.addEventListener("keydown", (e) => {
+            const d = {
+              ArrowUp: 1,
+              ArrowRight: 1,
+              ArrowDown: -1,
+              ArrowLeft: -1,
+            }[e.key];
+            if (d) {
+              set(
+                +inp.value +
+                  d * step * Math.max(1, ((max - min) / step / 20) | 0),
+              );
+              e.preventDefault();
+            }
+          });
+          k.addEventListener(
+            "wheel",
+            (e) => {
+              e.preventDefault();
+              set(
+                +inp.value -
+                  Math.sign(e.deltaY) *
+                    step *
+                    Math.max(1, ((max - min) / step / 30) | 0),
+              );
+            },
+            { passive: false },
+          );
+          inp.addEventListener("input", draw);
+          draw();
+          return k;
         }
-        const SP = TINT.map(sprite);
-        let W,
-          H,
-          D,
-          st = [],
-          mv = [],
-          last = 0;
-        const stat = (init) => {
-          const t = rnd(12, 40);
-          return {
-            x: rnd(0, W),
-            y: rnd(0, H),
-            r: 1 + Math.pow(Math.random(), 2.2) * 3.2,
-            t,
-            age: init ? rnd(0, t) : 0,
-            s: pick(),
-          };
+        const FXC = ["#E7E6E1", "#83FF73", "#AA78F2", "#FF861C"];
+        $("fx")
+          .querySelectorAll("input")
+          .forEach((x, i) =>
+            knob(
+              x,
+              ["DISTORTION", "CHORUS", "DELAY", "REVERB"][i],
+            ).style.setProperty("--c", FXC[i]),
+          );
+        $("mx")
+          .querySelectorAll(".ch")
+          .forEach((ch) => knob(ch.querySelectorAll("input")[1], "PAN"));
+        knob($("bpm"), "BPM").classList.add("lg");
+      })();
+      /* scope: real output waveform from the master analyser */
+      (() => {
+        const cv = $("scope"),
+          g = cv.getContext("2d");
+        let last = 0;
+        function d(t) {
+          requestAnimationFrame(d);
+          if (document.hidden || t - last < 40) return;
+          last = t;
+          g.clearRect(0, 0, cv.width, cv.height);
+          g.fillStyle = "rgba(255,134,28,.2)";
+          for (let x = 0; x < cv.width; x += 16)
+            for (let y = 0; y < cv.height; y += 12) g.fillRect(x, y, 2, 2);
+          const v = st.an ? st.an.getValue() : null,
+            n = 100;
+          g.fillStyle = "#FF861C";
+          for (let i = 0; i < n; i++) {
+            const s = v ? v[((i * v.length) / n) | 0] : 0;
+            g.fillRect(
+              i * (cv.width / n),
+              Math.round((cv.height / 2 + s * cv.height * 1.4) / 3) * 3,
+              3,
+              3,
+            );
+          }
+        }
+        requestAnimationFrame(d);
+      })();
+      /* moods: each preset changes tempo, harmony, melody, groove, timbre, FX */
+      (() => {
+        Object.assign(CH, {
+          Cmaj7: ["C3", "E3", "G3", "B3"],
+          Am7: ["A2", "C3", "E3", "G3"],
+          Fmaj7: ["F3", "A3", "C4", "E4"],
+          Em7: ["E3", "G3", "B3", "D4"],
+          Dm7: ["D3", "F3", "A3", "C4"],
+          Bbmaj7: ["Bb2", "D3", "F3", "A3"],
+          C6: ["C3", "E3", "G3", "A3"],
+          Cadd9: ["C3", "E3", "G3", "D4"],
+          Gadd9: ["G2", "B2", "D3", "A3"],
+        });
+        const P = (t) => [...t].map(Number);
+        const M = {
+          CALM: {
+            bpm: 72,
+            sw: 0.2,
+            t: "Спокойный: тёплое электропиано, редкая мелодия",
+            ch: ["Fmaj7", "Em7", "Dm7", "Cmaj7", "Am7"],
+            mel: ["E5", "D5", "C5", "B4", "A4"],
+            d0: "2n",
+            b: [0, -1, -1, -1, 1, -1, -1, -1, 2, -1, -1, -1, 3, -1, -1, -1],
+            m: [-1, 2, -1, 0, -1, 3, -1, 1, -1, 4, -1, 2, -1, 3, -1, -1],
+            k: "1001000010010000",
+            s: "0010001000100010",
+            h: "1111111111111111",
+            w: [0, 0],
+            B: { h: 2, i: 1.6, d: 1.4, r: 1.8, lp: 3200 },
+            L: { h: 5, i: 2.5, d: 0.6, r: 0.8, lp: 4000 },
+            fx: [0.1, 0.4, 0.2, 0.3],
+            drum: -9,
+          },
+          DRIVE: {
+            bpm: 96,
+            sw: 0.25,
+            t: "Бодрее, но фоном: синкопа и чёткий ритм",
+            ch: ["Dm7", "Bbmaj7", "Fmaj7", "C6", "Am7"],
+            mel: ["F5", "E5", "D5", "C5", "A4"],
+            d0: "8n",
+            b: [0, -1, -1, 0, 1, -1, -1, 1, 2, -1, -1, 2, 3, -1, -1, 3],
+            m: [-1, 2, -1, 1, -1, 2, -1, 3, -1, 2, -1, 0, -1, 1, -1, 3],
+            k: "1010001010100010",
+            s: "0010001000100010",
+            h: "1111111111111111",
+            w: [1, 0],
+            B: { h: 3, i: 2.4, d: 0.55, r: 0.7, lp: 4200 },
+            L: { h: 5, i: 3, d: 0.3, r: 0.4, lp: 5000 },
+            fx: [0.14, 0.35, 0.15, 0.2],
+            drum: -7,
+          },
+          SAD: {
+            bpm: 62,
+            sw: 0.1,
+            t: "Грустный: мягкий минор, мало нот, много воздуха",
+            ch: ["Am7", "Fmaj7", "Cmaj7", "Em7", "Dm7"],
+            mel: ["E5", "D5", "C5", "B4", "A4"],
+            d0: "2n",
+            b: [0, -1, -1, -1, 1, -1, -1, -1, 2, -1, -1, -1, 3, -1, -1, -1],
+            m: [-1, -1, 0, -1, -1, -1, 2, -1, -1, -1, 1, -1, -1, -1, 3, -1],
+            k: "1000000010000010",
+            s: "0000100000001000",
+            h: "1010101010101010",
+            w: [0, 0],
+            B: { h: 1, i: 1.2, d: 2.2, r: 2.8, lp: 2400 },
+            L: { h: 2, i: 1.6, d: 1.1, r: 1.4, lp: 3000 },
+            fx: [0.08, 0.5, 0.3, 0.5],
+            drum: -14,
+          },
+          HAPPY: {
+            bpm: 100,
+            sw: 0.3,
+            t: "Весёлый: светлый мажор, подпрыгивающий ритм, звонкая мелодия",
+            ch: ["Cadd9", "Gadd9", "Am7", "Fmaj7", "Dm7"],
+            mel: ["C6", "A5", "G5", "E5", "D5"],
+            d0: "8n",
+            b: [0, -1, 0, 0, 1, -1, 1, 1, 2, -1, 2, 2, 3, -1, 3, 3],
+            m: [3, -1, 2, 0, -1, 2, -1, 4, 1, -1, 0, 1, 2, -1, 3, -1],
+            k: "1010101010101010",
+            s: "0010001000100010",
+            h: "1111111111111111",
+            w: [1, 0],
+            B: { h: 3, i: 3.2, d: 0.8, r: 0.9, lp: 7000 },
+            L: { h: 5, i: 5, d: 0.35, r: 0.5, lp: 9000 },
+            fx: [0.1, 0.45, 0.3, 0.22],
+            drum: -9,
+          },
         };
-        const drop = (init) => {
-          const big = Math.random() < 0.18;
-          return {
-            x: rnd(0, W),
-            y: init ? rnd(0, H * 0.7) : rnd(-20, H * 0.3),
-            r: big ? rnd(5.5, 8) : rnd(3, 5),
-            big,
-            v: 0,
-            vt: big ? rnd(90, 170) : rnd(14, 40),
-            pause: rnd(0, 3),
-            tr: [],
-            s: pick(),
-            w: rnd(0, 6),
-            acc: 0,
-          };
+        const set = (el, v) => {
+          el.value = v;
+          el.dispatchEvent(new Event("input"));
         };
+        function refresh() {
+          const f = (id, fn) =>
+            $(id)
+              .querySelectorAll(".cell")
+              .forEach((x, i) =>
+                x.classList.toggle("on", fn(Math.floor(i / 16), i % 16)),
+              );
+          f("g1", (r, c) => grid[0][c] === r);
+          f("g2", (r, c) => grid[1][c] === r);
+          f("gd", (r, c) => grid[2][r][c] === 1);
+        }
+        function voice(i, o) {
+          st.syn[i].set({
+            harmonicity: o.h,
+            modulationIndex: o.i,
+            envelope: { decay: o.d, release: o.r },
+          });
+          st.lp[i].frequency.value = o.lp;
+        }
+        function apply(n, el) {
+          const m = M[n];
+          NOTES[0].splice(0, 5, ...m.ch);
+          NOTES[1].splice(0, 5, ...m.mel);
+          grid[0].splice(0, 16, ...m.b);
+          grid[1].splice(0, 16, ...m.m);
+          [m.k, m.s, m.h].forEach((p, r) => grid[2][r].splice(0, 16, ...P(p)));
+          $("g1")
+            .querySelectorAll(".lbl")
+            .forEach((l, i) => (l.textContent = NOTES[0][i]));
+          $("g2")
+            .querySelectorAll(".lbl")
+            .forEach((l, i) => (l.textContent = NOTES[1][i]));
+          refresh();
+          [0, 1].forEach((i) =>
+            $("w" + (i + 1))
+              .querySelectorAll("button")
+              [m.w[i]].click(),
+          );
+          voice(0, m.B);
+          voice(1, m.L);
+          st.dur[0] = m.d0;
+          Tone.Transport.swing = m.sw;
+          set($("bpm"), m.bpm);
+          $("fx")
+            .querySelectorAll("input")
+            .forEach((x, j) => set(x, m.fx[j]));
+          set(
+            $("mx").querySelectorAll(".ch")[2].querySelector("input"),
+            m.drum,
+          );
+          $("moods")
+            .querySelectorAll("button")
+            .forEach((x) => x.classList.toggle("on", x === el));
+        }
+        Object.entries(M).forEach(([n, m]) => {
+          const b = document.createElement("button");
+          b.textContent = n + " " + m.bpm;
+          b.title = m.t;
+          b.onclick = () => apply(n, b);
+          $("moods").appendChild(b);
+        });
+        apply("CALM", $("moods").firstChild);
+      })();
+      /* amber data rain: Canvas 2D background in the side margins and top corners, plus a lower group; modes FOCUS / SIGNAL */
+      (() => {
+        const cv = $("datarain"),
+          g = cv.getContext("2d"),
+          rm = matchMedia("(prefers-reduced-motion:reduce)");
+        const FONT = '"IBM Plex Mono",ui-monospace,monospace',
+          DIM = [166, 79, 19],
+          MAIN = [255, 138, 36],
+          PALE = "255,209,154",
+          FRAG = ["01", "74", "NS", "LOOP", "1011", "0xA4", "EOF", "OK"];
+        const LAYERS = [
+          { px: 9, a: 0.4, v: [14, 30], len: [7, 16], d: 30, lh: 11 },
+          { px: 10.5, a: 0.65, v: [28, 55], len: [9, 20], d: 46, lh: 13 },
+          { px: 12, a: 0.92, v: [45, 85], len: [9, 22], d: 78, lh: 15 },
+        ];
+        const MODES = {
+          focus: { speed: 1, alpha: 1, dens: 1 },
+          signal: { speed: 1.7, alpha: 1.25, dens: 1.35 },
+        };
+        let W = 0,
+          H = 0,
+          D = 1,
+          zoneW = 100,
+          layers = [],
+          base = [],
+          last = 0,
+          rt = 0,
+          cur = { ...MODES.focus },
+          tgt = MODES.focus;
+        const rnd = (a, b) => a + Math.random() * (b - a),
+          digit = () => String((Math.random() * 10) | 0);
+        function nextChar(s) {
+          if (s.q.length) return s.q.shift();
+          if (Math.random() < 0.08) {
+            const f = FRAG[(Math.random() * FRAG.length) | 0];
+            s.q = [...f].slice(1);
+            return f[0];
+          }
+          return digit();
+        }
+        /* group 0 starts at the top and fades by mid-screen; group 1 starts lower and fades toward the bottom */
+        function env(s, y) {
+          if (s.g === 0)
+            return y < H * 0.2
+              ? 1
+              : Math.max(0, 1 - (y - H * 0.2) / (H * 0.55));
+          const d = y - s.y0;
+          if (d < 0) return 0;
+          return Math.min(1, d / (H * 0.05)) * Math.max(0, 1 - d / (H * 0.45));
+        }
+        function make(l, prefill, k) {
+          const s = {
+            g: Math.random() < 0.4 ? 1 : 0,
+            len: rnd(l.len[0], l.len[1]) | 0,
+            v: rnd(l.v[0], l.v[1]),
+            pale: Math.random() < 0.16,
+            q: [],
+            t: [],
+            active: true,
+          };
+          s.side = Math.random() < 0.5;
+          s.x = Math.floor(s.side ? rnd(6, zoneW) : rnd(W - zoneW, W - 14));
+          s.ef = 1 - 0.55 * (s.side ? s.x / zoneW : (W - s.x) / zoneW);
+          s.y0 = s.g ? H * rnd(0.3, 0.5) : 0;
+          const r0 = Math.floor(s.y0 / l.lh);
+          s.hr = prefill
+            ? r0 + ((rnd(0, s.g ? H * 0.4 : H * 0.8) / l.lh) | 0)
+            : s.g
+              ? r0
+              : -(rnd(1, 6) | 0);
+          s.hy = s.hr * l.lh + rnd(0, l.lh);
+          s.hc = nextChar(s);
+          const n = prefill ? Math.min(s.len, Math.max(0, s.hr - r0)) : 0;
+          s.r0 = s.hr - n;
+          for (let i = 0; i < n; i++)
+            s.t.push({ c: nextChar(s), b: Math.random() < 0.04 });
+          return s;
+        }
+        const want = (li) => Math.round(base[li] * tgt.dens);
+        function seed() {
+          base = LAYERS.map((l) =>
+            Math.max(2, Math.round(((2 * zoneW) / l.d) * 1.6)),
+          );
+          layers = LAYERS.map((l, li) => {
+            const a = [],
+              n = Math.round(base[li] * MODES.signal.dens);
+            for (let k = 0; k < n; k++) {
+              if (k < want(li) && Math.random() < 0.7) a.push(make(l, true, k));
+              else {
+                const s = make(l, false, k);
+                s.active = false;
+                s.wait = rnd(0, 6);
+                a.push(s);
+              }
+            }
+            return a;
+          });
+        }
+        function step(dt) {
+          for (const k in MODES.focus)
+            cur[k] += (tgt[k] - cur[k]) * Math.min(1, dt * 2);
+          layers.forEach((arr, li) => {
+            const l = LAYERS[li],
+              w = want(li);
+            for (let k = 0; k < arr.length; k++) {
+              const s = arr[k];
+              if (!s.active) {
+                s.wait -= dt;
+                if (s.wait <= 0 && k < w) arr[k] = make(l, false, k);
+                continue;
+              }
+              s.hy += s.v * cur.speed * dt;
+              while (Math.floor(s.hy / l.lh) > s.hr) {
+                s.t.push({ c: s.hc, b: Math.random() < 0.04 });
+                s.hr++;
+                s.hc = nextChar(s);
+              }
+              while (s.t.length && s.hy - s.r0 * l.lh > s.len * l.lh) {
+                s.t.shift();
+                s.r0++;
+              }
+              if (Math.random() < dt * 0.4 && s.t.length)
+                s.t[(Math.random() * s.t.length) | 0].c = digit();
+              if (s.hy - s.len * l.lh > (s.g ? s.y0 + H * 0.5 : H * 0.85)) {
+                s.active = false;
+                s.wait = rnd(0.6, 6);
+              }
+            }
+          });
+        }
+        function draw() {
+          g.fillStyle = "#050507";
+          g.fillRect(0, 0, W, H);
+          g.textBaseline = "top";
+          layers.forEach((arr, li) => {
+            const l = LAYERS[li];
+            g.font = l.px + "px " + FONT;
+            for (const s of arr) {
+              if (!s.active) continue;
+              const span = s.len * l.lh;
+              for (let i = 0; i < s.t.length; i++) {
+                const y = (s.r0 + i) * l.lh;
+                if (y < -l.lh || y > H) continue;
+                const f = 1 - (s.hy - y) / span;
+                if (f <= 0) continue;
+                const al = Math.min(
+                  1,
+                  l.a * Math.pow(f, 1.3) * s.ef * env(s, y) * cur.alpha,
+                );
+                if (al < 0.02) continue;
+                const c = s.t[i];
+                if (c.b) g.fillStyle = "rgba(" + PALE + "," + al + ")";
+                else
+                  g.fillStyle =
+                    "rgba(" +
+                    ((DIM[0] + (MAIN[0] - DIM[0]) * f) | 0) +
+                    "," +
+                    ((DIM[1] + (MAIN[1] - DIM[1]) * f) | 0) +
+                    "," +
+                    ((DIM[2] + (MAIN[2] - DIM[2]) * f) | 0) +
+                    "," +
+                    al +
+                    ")";
+                g.fillText(c.c, s.x, y);
+              }
+              const hv = env(s, s.hy) * s.ef;
+              if (s.hy > -l.lh && s.hy < H && hv > 0.03) {
+                g.shadowColor = "rgba(255,138,36,.8)";
+                g.shadowBlur = hv > 0.3 ? 6 : 0;
+                g.fillStyle =
+                  "rgba(" +
+                  (s.pale ? PALE : "255,138,36") +
+                  "," +
+                  Math.min(1, (l.a + 0.1) * hv * cur.alpha) +
+                  ")";
+                g.fillText(s.hc, s.x, s.hy);
+                g.shadowBlur = 0;
+              }
+            }
+          });
+        }
         function size() {
-          D = Math.min(devicePixelRatio || 1, 1.5);
+          D = Math.min(devicePixelRatio || 1, 2);
           W = innerWidth;
           H = innerHeight;
-          cv.width = W * D;
-          cv.height = H * D;
-          ctx.setTransform(D, 0, 0, D, 0, 0);
-          st = [];
-          const n = Math.min(260, ((W * H) / 6500) | 0);
-          for (let i = 0; i < n; i++) st.push(stat(true));
-          if (!mv.length) for (let i = 0; i < 6; i++) mv.push(drop(true));
+          cv.width = Math.round(W * D);
+          cv.height = Math.round(H * D);
+          g.setTransform(D, 0, 0, D, 0, 0);
+          zoneW = Math.max(70, Math.min(360, (W - 1240) / 2 + 40));
+          cv.style.display = W < 900 ? "none" : "block";
+          seed();
+          draw();
         }
-        let rt;
+        function frame(now) {
+          requestAnimationFrame(frame);
+          if (document.hidden || innerWidth < 900 || now - last < 33) return;
+          const dt = Math.min((now - last) / 1000, 0.1);
+          last = now;
+          step(dt);
+          draw();
+        }
+        $("rainmode")
+          .querySelectorAll("button")
+          .forEach(
+            (b) =>
+              (b.onclick = () => {
+                $("rainmode")
+                  .querySelectorAll("button")
+                  .forEach((x) => x.classList.toggle("on", x === b));
+                tgt = MODES[b.dataset.m];
+                if (rm.matches) {
+                  cur = { ...tgt };
+                  seed();
+                  draw();
+                }
+              }),
+          );
         addEventListener("resize", () => {
           clearTimeout(rt);
           rt = setTimeout(size, 150);
         });
+        document.addEventListener("visibilitychange", () => {
+          last = performance.now();
+        });
         size();
-        function frame(t) {
-          requestAnimationFrame(frame);
-          if (document.hidden || t - last < 33) return;
-          const dt = Math.min((t - last) / 1000, 0.1);
-          last = t;
-          ctx.clearRect(0, 0, W, H);
-          st.forEach((d, i) => {
-            d.age += dt;
-            if (d.age > d.t) {
-              st[i] = stat(false);
-              return;
-            }
-            const a = Math.min(d.age / 1.5, 1, (d.t - d.age) / 3);
-            ctx.globalAlpha = a * 0.9;
-            ctx.drawImage(SP[d.s], d.x - d.r, d.y - d.r, d.r * 2, d.r * 2.2);
+        if (!rm.matches)
+          requestAnimationFrame((t) => {
+            last = t;
+            frame(t);
           });
-          const max = Math.max(6, Math.min(16, (W / 100) | 0));
-          if (mv.length < max && Math.random() < dt * 0.7) mv.push(drop(false));
-          mv = mv.filter((d) => {
-            if (d.pause > 0) {
-              d.pause -= dt;
-              d.v *= 0.9;
-            } else {
-              d.v += (d.vt - d.v) * Math.min(1, dt * (d.big ? 1.2 : 0.8));
-              if (Math.random() < dt * (d.big ? 0.05 : 0.25))
-                d.pause = rnd(0.6, 2.5);
-              if (Math.random() < dt * 0.15)
-                d.vt = d.big ? rnd(90, 170) : rnd(14, 40);
-            }
-            const dy = d.v * dt;
-            d.y += dy;
-            d.w += dt * 1.3;
-            d.x += Math.sin(d.w + d.y * 0.02) * dt * 3;
-            d.acc += dy;
-            if (d.acc > 7) {
-              d.acc = 0;
-              d.tr.push([d.x, d.y]);
-              if (d.tr.length > (d.big ? 40 : 22)) d.tr.shift();
-              if (Math.random() < 0.35) {
-                st.push({
-                  x: d.x + rnd(-d.r, d.r) * 0.7,
-                  y: d.y - d.r,
-                  r: rnd(0.5, 1.3),
-                  t: rnd(8, 20),
-                  age: 0,
-                  s: pick(),
-                });
-                if (st.length > 320) st.shift();
-              }
-            }
-            d.r -= dy * (d.big ? 0.0035 : 0.001);
-            if (d.r < 2.2 || d.y > H + 20) return false;
-            ctx.strokeStyle = "rgb(190,205,255)";
-            ctx.lineCap = "round";
-            for (let k = 1; k < d.tr.length; k++) {
-              const f = k / d.tr.length;
-              ctx.globalAlpha = 0.09 * f;
-              ctx.lineWidth = d.r * 0.5 * f + 0.4;
-              ctx.beginPath();
-              ctx.moveTo(d.tr[k - 1][0], d.tr[k - 1][1]);
-              ctx.lineTo(d.tr[k][0], d.tr[k][1]);
-              ctx.stroke();
-            }
-            ctx.globalAlpha = 1;
-            ctx.drawImage(
-              SP[d.s],
-              d.x - d.r,
-              d.y - d.r * 1.25,
-              d.r * 2,
-              d.r * 2.6,
-            );
-            return true;
-          });
-          ctx.globalAlpha = 1;
-        }
-        requestAnimationFrame(frame);
       })();
       /* 3D tilt of the whole device; independent of the rain */
       (() => {
